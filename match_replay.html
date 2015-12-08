@@ -1,0 +1,390 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Data visualisation - Assignment 1</title>
+  <link rel="stylesheet" href="/css/bootstrap/css/bootstrap.min.css">
+
+  <style>
+
+  .container{
+  	width: 970px !important;
+  }
+
+    #map_container{
+    	width: 450px; 
+    	height: 450px;
+    	padding: 0;
+    	position: relative; 
+  
+    }
+    #map{ 
+    	width: 450px; 
+    	height: 450px;
+    }
+
+    #matches_container{
+    	width: 100%;
+    	height: 450px;
+    	overflow: scroll;
+    
+    }
+
+    #progress_bar_container{
+    	background-color: #666;
+    	margin-top: 5px;
+    	height: 20px;
+    	width:450px;
+    }
+
+    #progress_bar{
+    	background-color: #28AADE;
+    	height: 100%;
+    	width:0px;
+    }
+
+    .label:hover{
+    	cursor: pointer;
+    }
+
+    /* Styling for the legend */
+
+    .my-legend{
+    	margin-top: 5px;
+    }
+
+    .my-legend .legend-title {
+	    text-align: left;
+	    margin-bottom: 5px;
+	    font-weight: bold;
+	    font-size: 90%;
+    }
+  .my-legend .legend-scale ul {
+	    margin: 0;
+	    margin-bottom: 5px;
+	    padding: 0;
+	    float: left;
+	    list-style: none;
+    }
+  .my-legend .legend-scale ul li {
+	    font-size: 80%;
+	    list-style: none;
+	    margin-left: 0;
+	    line-height: 18px;
+	    margin-bottom: 2px;
+    }
+  .my-legend ul.legend-labels li span {
+	    display: block;
+	    float: left;
+	    height: 16px;
+	    width: 30px;
+	    margin-right: 5px;
+	    margin-left: 0;
+	    border: 1px solid #999;
+    }
+  .my-legend .legend-source {
+	    font-size: 70%;
+	    color: #999;
+	    clear: both;
+    }
+  .my-legend a {
+    	color: #777;
+    }
+
+  </style>
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="/css/colorbrewer.js" charset="utf-8"></script>
+</head>
+<body>
+
+<div class="container" id="main-wrapper">
+	<!-- row for title -->	
+	<div class="row">
+		<div class="col-xs-6">
+			<h1>Match replay</h1>
+		</div>
+	</div>
+	<!-- row for map and table -->
+	<div class="row">
+		<div class="col-xs-6">
+			<div id="map_container">
+				<img id="map" src="map.jpg">
+				
+			</div>
+		</div>
+		<div class="col-xs-6">
+			<div id="matches_container">
+			</div>
+		</div>
+	</div>
+	<!-- row for progress bar -->
+	<div class="row">
+		<div class="col-xs-6">
+			<div id="progress_bar_container">
+					<div id="progress_bar"></div>
+			</div>
+			<span class="label label-info" id="progress-percentage">0%</span>
+		</div>
+	</div>
+
+	<!-- row for legend and other statistics -->
+	<div class="row">
+		<div class="col-xs-6">
+			<div class='my-legend'>
+				<div class='legend-scale'>
+				  <ul class='legend-labels'></ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-xs-6">
+			other statistics here
+		</div>
+	</div>
+</div>	<!-- end container div -->
+
+</body>
+<script>
+	var timer;
+	var hasStarted = false;
+	var paused = false;
+	var originalData;
+	var currentPosition = 0;
+
+	var progressScaleClicked = d3.scale.linear()
+					.domain([0,450]);
+
+	//pause / start the gameplay
+	d3.select("#map_container").on("click",function(){
+		if(hasStarted){paused = !paused;}
+	});
+
+	//change position of gameplay
+	d3.select("#progress_bar_container").on("click",function(d){
+		currentPosition = parseInt(progressScaleClicked(d3.event.pageX - $("#main-wrapper").offset().left - this.offsetLeft ))
+
+	});
+
+	//draw initial svg
+	var svg = d3.select("#map_container")
+				.append("svg")
+				.attr("height",450)
+				.attr("width",450)
+				.style("position","absolute").style("top",0).style("left",0);
+
+	
+	function plot(data){
+		
+		/* Create a list of players together with their team */		
+		var nest = d3.nest()
+    		.key(function(d) { return d.player; })
+    		.entries(data);
+
+    	var players = nest.map(function(d){
+    			return {
+    				"player" : d.key,
+    				"team" : d.values[0].team,
+    				"won" : parseInt(d.values[0].won)
+    			}
+    		
+    	})
+
+		var xScale = d3.scale.linear()
+					.domain([0,d3.max(data,function(d){return d.x;})])
+					.range([0,450]);
+
+		var yScale = d3.scale.linear()
+					.domain([0,d3.max(data,function(d){return d.y;})])
+					.range([450,0]);
+
+		var progressScale = d3.scale.linear()
+					.domain([0,d3.max(data,function(d){return d.tsync;})])
+					.range([0,450]);
+
+		progressScaleClicked.range([0,data.length]);
+
+		var colorScale = d3.scale.ordinal()
+    				.domain(players.map(function(d){
+    					return d.player;
+    				}))
+    				.range(['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd']);
+
+		d3.select(".legend-labels").append("div").classed("legend-title",true).html("Legend");
+	    var li = d3.select(".legend-labels").selectAll("li")
+	    	.data(colorScale.domain()).enter()
+	    		.append("li")
+	    		.classed("legend_li",true);
+
+	    var teamColorScale = d3.scale.category10();
+
+	    li.html(function(d,i){
+	    	return d + " " +" " + " [ " + players[i].team + " ]";
+	    });
+
+	    li.append("span")
+	    		.style("background",function(d,i){
+	    			return colorScale.range()[i];
+	    		})
+
+		data.sort(function(a,b){
+			return a.tsync - b.tsync;
+		});
+
+		var timeData = [];
+		var tsync = 0;
+		
+		timer =setInterval(function(){
+
+			if(!paused){
+		
+				if (currentPosition == data.length){
+					clearInterval(timer);
+					alert("DONE");
+					return;
+				}
+
+				timeData.push(data[currentPosition]); 
+				tsync = data[currentPosition].tsync;
+				
+				currentPosition++;
+				//console.log(i);
+				if(timeData.length > 50){
+					timeData.shift();
+				}
+
+				//update the progress bar
+				d3.select("#progress_bar").style("width",function(){
+					return progressScale(tsync) +"px";
+				})
+
+				//update progress percentage
+		
+				d3.select("#progress-percentage").html(parseInt((currentPosition/data.length)*100) + " %");
+				
+				//Bind the data
+				var circles = svg.selectAll("circle").data(timeData);
+
+				//Enter
+				circles.enter().append("circle");
+				
+				//Update
+				circles.attr("cx", function(d) {
+		        	return xScale(d.x);
+		   		})
+		   		.attr("cy", function(d) {
+		        	return yScale(d.y);
+		   		})
+		   		.attr("r", 8)
+		   		.attr("fill",function(d,i){
+		   			return colorScale(d.player);
+		   		}).attr("stroke-width",3)
+		   		.attr("stroke",function(d,i){
+		   			return teamColorScale(d.team);
+		   		})
+
+				//Exit
+				circles.exit().remove();
+
+			}//end paused check
+
+		},1)
+	
+	}
+
+	function parseDate(d){
+		d.x = parseInt(d.x);
+		d.y = parseInt(d.y);
+		d.tsync = parseInt(d.tsync);
+		d.player = decodeURIComponent(d.player);
+		return d;
+	}
+
+
+	//Read available matches
+	d3.csv("matches.csv",function(data){
+
+		createMatchTable(data);
+
+	});
+
+	function createMatchTable(data){
+
+
+		var table = d3.select('#matches_container')
+						.append('table')
+						.classed("table",true)
+						.classed("table-striped",true)
+						.classed("table-bordered",true)
+						.style("width","100%");
+
+		var keys = d3.keys(data[0]);
+		keys.push("Play");
+
+		table.append('thead')
+			.append('tr')
+   			.selectAll('th')
+   			.data(keys)
+   			.enter()
+   				.append('th')
+   				.text(function(d,i){
+   					return d;
+   				});
+
+   		var tr = table.append('tbody')
+   					.selectAll('tr')
+   					.data(data).enter()
+   					.append('tr');
+
+	   var td = tr.selectAll('td')
+	   .data(function(row, i) {
+	       // evaluate column objects against the current row
+	       return keys.map(function(c) {
+	           var temp = [];
+	           keys.forEach(function(d){
+	           		if(d == "Play"){
+	           			temp.push("Play");
+	           		}else{
+	           			temp.push(row[d]);
+	           		}
+	           });
+	           return temp;
+	       });
+	   }).enter()
+	   .append('td');
+
+	   td_text = td.html(function(d,i){
+	   		if(i<2){
+	   			return "<h5>" + d[i] + "</h5>";
+	   		}else{
+	   			return "<h5><span class=\"label label-success\">Play</span></h5>"
+	   		}   		
+	   }).on("click",function(d,i){
+	   	if(i == 2){
+	   				
+	   			d3.selectAll("circle").remove();
+	   			clearInterval(timer);
+	   			hasStarted = true;
+	   			paused = false;
+	   			currentPosition = 0;
+
+	   			d3.selectAll(".legend_li").remove();
+	   			d3.selectAll(".legend-title").remove();
+
+	   			var file_name = "/matches/" + d[0] + ".csv"
+				d3.csv(file_name,parseDate,function(error,data){
+					originalData = data;
+					plot(originalData);
+				});	
+
+	   	}
+	   });
+	}
+
+</script>
+</html>
