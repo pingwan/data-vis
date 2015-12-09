@@ -31,8 +31,8 @@ body {
   }
 
     #chart_container{
-    	width: 450px; 
-    	height: 450px;
+    	width: 600px; 
+    	height: 500px;
     	padding: 0;
     	position: relative; 
   
@@ -43,6 +43,9 @@ body {
     	height: 450px;
     	overflow: scroll;
     
+    }
+    .label:hover{
+    	cursor: pointer;
     }
 
 </style>
@@ -60,7 +63,7 @@ body {
 	<!-- row for title -->	
 	<div class="row">
 		<div class="col-xs-6">
-			<h1>Zone changes</h1>
+			<h1>Zone changes per quarter</h1>
 		</div>
 	</div>
 	<!-- row for map and table -->
@@ -75,14 +78,20 @@ body {
 			</div>
 		</div>
 	</div>
+	<!-- row for legend and other statistics -->
+	<div class="row" >
+		<div class="col-xs-6" id="stuff">
+				other statistics here
+		</div>
+	</div>
 
 </body>
 
 <script>
 
 var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    width = 450,
+    height = 450;
 
 var x0 = d3.scale.ordinal()
     .rangeRoundBands([0, width], .1);
@@ -108,9 +117,10 @@ var svg = d3.select("#chart_container")
 	.append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-  .append("g")
+    .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-	
+	//.style("position","absolute").style("top",0).style("left",0);
+	//
 	
 var originalData;
 //Read available matches
@@ -120,14 +130,21 @@ var originalData;
 
 	});
 
+function parseDate(d){
+		d.x = parseInt(d.x);
+		d.y = parseInt(d.y);
+		d.tsync = parseInt(d.tsync);
+		d.player = decodeURIComponent(d.player);
+		return d;
+	}
+
 function createMatchTable(data){
-
-
 		var table = d3.select('#matches_container')
 						.append('table')
 						.classed("table",true)
 						.classed("table-striped",true)
 						.classed("table-bordered",true)
+						.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; })
 						.style("width","100%");
 
 		var keys = d3.keys(data[0]);
@@ -177,6 +194,10 @@ function createMatchTable(data){
 
 	   			var file_name = "/matches/" + d[0] + ".csv"
 				d3.csv(file_name,parseDate,function(error,data){
+					d3.selectAll("rect").remove();
+					d3.selectAll('.axis').remove();
+					d3.selectAll(".legend").remove();
+					//document.getElementById("stuff").innerHTML = "";
 					originalData = data;
 					chart(originalData);
 				});	
@@ -192,19 +213,21 @@ function chart(data){
   var dire = [0,0,0,0];
   var player = "";
   var maxTime = 0;
-  var winner = '';
+  console.log(data[0]);
+  if(data[0].winner = "1" && data[0].team == "radiant"){
+  	winner = data[0].team;
+  } else{ winner = "dire";}
+  document.getElementById("stuff").innerHTML = "The winner of match " + data[0].match + " was team " + winner + "!";
+  console.log(winner);
+  var winner = "";
 	var team = "";
 	for (i = 0; i < data.length; i++) {
 		if(player == "")
 		{
 			player = data[i].player;
-			if(data[i].won == '1'){
-				winner = data[i].team;
-			}
 		}
 		if(player == data[i].player)
 		{
-			
 			maxTime++;
 			
 		}
@@ -213,18 +236,14 @@ function chart(data){
   var quarterTime = 0.25 * maxTime;
   var halfTime = 0.5 * maxTime;
   var tqTime = quarterTime + halfTime;
-  var zone = '';
- 
+  var zone = "";
+  var player = "";
   
   for (i = 0; i < data.length; i++) {
 		if(player == "")
 		{
 			player = data[i].player;
 			zone = data[i].zone;
-			if(data[i].won && data[i].team == 'radiant'){
-				winner = data[i].team;
-			}
-			else{winner = 'dire';}
 		}
 		if(player == data[i].player)
 		{
@@ -264,12 +283,13 @@ function chart(data){
 		zone = data[i].zone;
 		player = data[i].player;
 	}
-  var stage = ['0.25', '0.50', '0.75', '1.00'];
+
+  var stage = ['q1', 'q2', 'q3', 'q4'];
   
-  var stuff2 = [{stage:'0.25', radiant:radiant[0], dire:dire[0]},
-				{stage:'0.50', radiant:radiant[1], dire:dire[1]},
-				{stage:'0.75', radiant:radiant[2], dire:dire[2]},
-				{stage:'1.00', radiant:radiant[3], dire:dire[3]}
+  var stuff2 = [{stage:'q1', radiant:radiant[0], dire:dire[0]},
+				{stage:'q2', radiant:radiant[1], dire:dire[1]},
+				{stage:'q3', radiant:radiant[2], dire:dire[2]},
+				{stage:'q4', radiant:radiant[3], dire:dire[3]}
   ];
   
   var bla = d3.keys(stuff2[0]).filter(function(key) { return (key !== "stage"); });
@@ -292,6 +312,7 @@ function chart(data){
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
       .call(xAxis);
+      
 
   svg.append("g")
       .attr("class", "y axis")
@@ -339,6 +360,9 @@ function chart(data){
       .attr("dy", ".35em")
       .style("text-anchor", "end")
       .text(function(d) { return d; });
+
+      
+
 	  
 //});
 }
