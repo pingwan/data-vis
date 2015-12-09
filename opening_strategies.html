@@ -43,12 +43,16 @@
 			<h1>Opening strategies</h1>
 		</div>
 	</div>
-	<!-- row for map and table -->
+	<!-- row for maps -->
 	<div class="row">
 		<div class="col-xs-6">
 			<div id="map_container">
 				<img id="map" src="map.jpg">
-				
+			</div>
+		</div>
+		<div class="col-xs-6">
+			<div id="map_container2">
+				<img id="map" src="map.jpg">
 			</div>
 		</div>
 	</div>
@@ -57,10 +61,64 @@
 	<!-- row for legend and other statistics -->
 	<div class="row">
 		<div class="col-xs-6">
-			other statistics here
+			Heatmap of both teams overlayed for the first 10% of the game.
+		</div>
+		<div class="col-xs-6">
+			Heatmap of both teams overlayed for the first 10% of the game with frequency.
 		</div>
 	</div>
+
+	<!-- row for maps -->
+	<div class="row">
+		<div class="col-xs-6">
+			<div id="map_container3">
+				<img id="map" src="map.jpg">
+			</div>
+		</div>
+		<div class="col-xs-6">
+			<div id="map_container4">
+				<img id="map" src="map.jpg">
+			</div>
+		</div>
+	</div>
+
+<!-- row for legend and other statistics -->
+	<div class="row">
+		<div class="col-xs-6">
+			Heatmap of the radiant for the first 10% of the game.
+		</div>
+		<div class="col-xs-6">
+			Heatmap of the radiant for the first 10% of the game with frequency.
+		</div>
+	</div>
+
+	<!-- row for maps -->
+	<div class="row">
+		<div class="col-xs-6">
+			<div id="map_container5">
+				<img id="map" src="map.jpg">
+			</div>
+		</div>
+		<div class="col-xs-6">
+			<div id="map_container6">
+				<img id="map" src="map.jpg">
+			</div>
+		</div>
+	</div>
+
+<!-- row for legend and other statistics -->
+	<div class="row">
+		<div class="col-xs-6">
+			Heatmap of the dire for the first 10% of the game.
+		</div>
+		<div class="col-xs-6">
+			Heatmap of the radiant for the first 10% of the game with frequency.
+		</div>
+	</div>
+	
 </div>	<!-- end container div -->
+
+
 
 </body>
 <script>
@@ -71,8 +129,37 @@
 				.attr("width",450)
 				.style("position","absolute").style("top",0).style("left",0);
 
+				//draw initial svg
+	var svg2 = d3.select("#map_container2")
+				.append("svg")
+				.attr("height",450)
+				.attr("width",450)
+				.style("position","absolute").style("top",0).style("left",0);
+	var svg3 = d3.select("#map_container3")
+				.append("svg")
+				.attr("height",450)
+				.attr("width",450)
+				.style("position","absolute").style("top",0).style("left",0);
+	var svg4 = d3.select("#map_container4")
+				.append("svg")
+				.attr("height",450)
+				.attr("width",450)
+				.style("position","absolute").style("top",0).style("left",0);
+
+	var svg5 = d3.select("#map_container5")
+				.append("svg")
+				.attr("height",450)
+				.attr("width",450)
+				.style("position","absolute").style("top",0).style("left",0);
+
+	var svg6 = d3.select("#map_container6")
+				.append("svg")
+				.attr("height",450)
+				.attr("width",450)
+				.style("position","absolute").style("top",0).style("left",0);
+
 	
-function plot(){
+function plot(thing, name){
 		
 		var xScale = d3.scale.linear()
 					.domain([0,125])
@@ -85,15 +172,17 @@ function plot(){
 
 		var colorScale = d3.scale.linear()
     				.domain([0.0,1.0])
-    				.range(['blue', 'red']);
+    				.range(['blue' ,'red']);
 
-    d3.csv("openings_heatmap.csv",function(data){
-    	//console.log(d3.csv.parseRows(data));
-    	console.log(data);
     	var pixel = xScale(1);
+
+    d3.csv(name,function(data){
+    	//console.log(d3.csv.parseRows(data));
+    	//console.log(data);
+    	
 		
 
-		svg.selectAll('rect')
+		thing.selectAll('rect')
 			.data(data)
 			.enter()
 			.append('rect')
@@ -109,7 +198,13 @@ function plot(){
 	
 }
 
-plot();
+plot(svg, "openings_heatmap.csv");
+plot(svg2, "openings_heatmap2.csv");
+plot(svg3, "openings_heatmap_radiant.csv");
+plot(svg4, "openings_heatmap_radiant2.csv");
+plot(svg5, "openings_heatmap_dire.csv");
+plot(svg6, "openings_heatmap_dire2.csv");
+
 
 </script>
 </html>
