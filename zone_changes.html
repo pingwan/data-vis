@@ -1,5 +1,10 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Data visualisation - Assignment 1</title>
+  <link rel="stylesheet" href="/css/bootstrap/css/bootstrap.min.css">
 <style>
 
 body {
@@ -21,7 +26,34 @@ body {
   display: none;
 }
 
+.container{
+  	width: 970px !important;
+  }
+
+    #chart_container{
+    	width: 450px; 
+    	height: 450px;
+    	padding: 0;
+    	position: relative; 
+  
+    }
+
+    #matches_container{
+    	width: 100%;
+    	height: 450px;
+    	overflow: scroll;
+    
+    }
+
 </style>
+
+<!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="/css/colorbrewer.js" charset="utf-8"></script>
+</head>
 <body>
 
 <div class="container" id="main-wrapper">
@@ -31,9 +63,21 @@ body {
 			<h1>Zone changes</h1>
 		</div>
 	</div>
+	<!-- row for map and table -->
+	<div class="row">
+		<div class="col-xs-6">
+			<div id="chart_container">
+				
+			</div>
+		</div>
+		<div class="col-xs-6">
+			<div id="matches_container">
+			</div>
+		</div>
+	</div>
 
 </body>
-<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
 <script>
 
 var margin = {top: 20, right: 20, bottom: 30, left: 40},
@@ -60,13 +104,89 @@ var yAxis = d3.svg.axis()
     .orient("left")
     .tickFormat(d3.format(".2s"));
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#chart_container")
+	.append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
+	
+var originalData;
+//Read available matches
+	d3.csv("matches.csv",function(data){
 
-d3.csv("matches/569716737.csv",function(data){
+		createMatchTable(data);
+
+	});
+
+function createMatchTable(data){
+
+
+		var table = d3.select('#matches_container')
+						.append('table')
+						.classed("table",true)
+						.classed("table-striped",true)
+						.classed("table-bordered",true)
+						.style("width","100%");
+
+		var keys = d3.keys(data[0]);
+		keys.push("Play");
+
+		table.append('thead')
+			.append('tr')
+   			.selectAll('th')
+   			.data(keys)
+   			.enter()
+   				.append('th')
+   				.text(function(d,i){
+   					return d;
+   				});
+
+   		var tr = table.append('tbody')
+   					.selectAll('tr')
+   					.data(data).enter()
+   					.append('tr');
+
+	   var td = tr.selectAll('td')
+	   .data(function(row, i) {
+	       // evaluate column objects against the current row
+	       return keys.map(function(c) {
+	           var temp = [];
+	           keys.forEach(function(d){
+	           		if(d == "Play"){
+	           			temp.push("Play");
+	           		}else{
+	           			temp.push(row[d]);
+	           		}
+	           });
+	           return temp;
+	       });
+	   }).enter()
+	   .append('td');
+
+	   td_text = td.html(function(d,i){
+	   		if(i<2){
+	   			return "<h5>" + d[i] + "</h5>";
+	   		}else{
+	   			return "<h5><span class=\"label label-success\">Play</span></h5>"
+	   		}   		
+	   }).on("click",function(d,i){
+	   	if(i == 2){
+	   				
+
+	   			var file_name = "/matches/" + d[0] + ".csv"
+				d3.csv(file_name,parseDate,function(error,data){
+					originalData = data;
+					chart(originalData);
+				});	
+
+	   	}
+	   });
+	}
+	
+function chart(data){
+	//d3.csv("matches/569716737.csv",function(data){
 
   var radiant = [0, 0, 0, 0];
   var dire = [0,0,0,0];
@@ -220,6 +340,6 @@ d3.csv("matches/569716737.csv",function(data){
       .style("text-anchor", "end")
       .text(function(d) { return d; });
 	  
-});
-
+//});
+}
 </script>
