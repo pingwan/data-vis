@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.x.axis path {
+  display: none;
+}
+
+</style>
+<body>
+
+<div class="container" id="main-wrapper">
+	<!-- row for title -->	
+	<div class="row">
+		<div class="col-xs-6">
+			<h1>Zone changes</h1>
+		</div>
+	</div>
+
+</body>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script>
+
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x0 = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+
+var x1 = d3.scale.ordinal();
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var color = d3.scale.ordinal()
+    .range(["blue","red"]);
+
+var xAxis = d3.svg.axis()
+    .scale(x0)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(d3.format(".2s"));
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("matches/569716737.csv",function(data){
+
+  var radiant = [0, 0, 0, 0];
+  var dire = [0,0,0,0];
+  var player = "";
+  var maxTime = 0;
+  var winner = '';
+	var team = "";
+	for (i = 0; i < data.length; i++) {
+		if(player == "")
+		{
+			player = data[i].player;
+			if(data[i].won == '1'){
+				winner = data[i].team;
+			}
+		}
+		if(player == data[i].player)
+		{
+			
+			maxTime++;
+			
+		}
+	}
+  
+  var quarterTime = 0.25 * maxTime;
+  var halfTime = 0.5 * maxTime;
+  var tqTime = quarterTime + halfTime;
+  var zone = '';
+ 
+  
+  for (i = 0; i < data.length; i++) {
+		if(player == "")
+		{
+			player = data[i].player;
+			zone = data[i].zone;
+			if(data[i].won && data[i].team == 'radiant'){
+				winner = data[i].team;
+			}
+			else{winner = 'dire';}
+		}
+		if(player == data[i].player)
+		{
+			if(data[i].team == 'radiant' && zone != data[i].zone)
+			{
+				var time = +data[i].tsync;
+				if(time < quarterTime){
+					radiant[0]++;
+				}
+				else if(quarterTime < time && time < halfTime){
+					radiant[1]++;
+				}
+				else if(halfTime < time && time < tqTime){
+					radiant[2]++;
+				}
+				else{
+					radiant[3]++;
+				}
+			}
+			if(data[i].team == 'dire' && zone != data[i].zone)
+			{
+				var time = +data[i].tsync;
+				if(time < quarterTime){
+					dire[0]++;
+				}
+				else if(quarterTime < time && time < halfTime){
+					dire[1]++;
+				}
+				else if(halfTime < time && time < tqTime){
+					dire[2]++;
+				}
+				else{
+					dire[3]++;
+				}
+			}
+		}
+		zone = data[i].zone;
+		player = data[i].player;
+	}
+  var stage = ['0.25', '0.50', '0.75', '1.00'];
+  
+  var stuff2 = [{stage:'0.25', radiant:radiant[0], dire:dire[0]},
+				{stage:'0.50', radiant:radiant[1], dire:dire[1]},
+				{stage:'0.75', radiant:radiant[2], dire:dire[2]},
+				{stage:'1.00', radiant:radiant[3], dire:dire[3]}
+  ];
+  
+  var bla = d3.keys(stuff2[0]).filter(function(key) { return (key !== "stage"); });
+
+  
+  stuff2.forEach(function(d) {
+    d.ages = bla.map(function(name) { return {name: name, value: +d[name]}; });
+  });
+
+  //console.log(stuff2);
+
+  x0.domain(stage);
+  x1.domain(['radiant', 'dire']).rangeRoundBands([0, x0.rangeBand()]);
+  var maxChanges = Math.max(Math.max(...radiant), Math.max(...dire));
+  y.domain([0, maxChanges]);
+  
+
+  
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Zone Changes");
+	  
+	  
+	  var stages = svg.selectAll(".state")
+      .data(stuff2)
+      .enter().append("g")
+      .attr("class", "g")
+      .attr("transform", function(d) { return "translate(" + x0(d.stage) + ",0)"; });
+	  
+	stages.selectAll(".bar")
+      .data(function(d) { return d.ages; })
+      .enter().append("rect")
+
+      .attr("width", x1.rangeBand())
+      .attr("x", function(d) { return x1(d.name); })
+      .attr("y", function(d) { return y(d.value); })
+      .attr("height", function(d) { return height - y(d.value); })
+      .style("fill", function(d) { return color(d.name); });
+	  //.style("fill", function(d) { return (d.name == "radiant");} ? "red": "blue");
+	  
+	  var legend = svg.selectAll(".legend")
+      .data(bla.slice().reverse())
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+	legend.append("rect")
+      .attr("x", width - 18)
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color);
+
+  legend.append("text")
+      .attr("x", width - 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d; });
+	  
+});
+
+</script>
