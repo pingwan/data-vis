@@ -23,6 +23,12 @@
     	width: 450px; 
     	height: 450px;
     }
+    #chart_container{
+    	width: 900px; 
+    	height: 500px;
+    	padding: 0;
+    	position: relative; 
+    }
 
 
   </style>
@@ -91,7 +97,14 @@
 			Heatmap of the radiant for the first 10% of the game with frequency.
 		</div>
 	</div>
-
+<!--Chart-->
+	<div class="row">
+		<div class="col-xs-6">
+			<div id="chart_container">
+				
+			</div>
+		</div>
+	</div>
 	<!-- row for maps -->
 	<div class="row">
 		<div class="col-xs-6">
@@ -122,6 +135,19 @@
 
 </body>
 <script>
+
+	var margin = {
+		top: 20, 
+		right: 20, 
+		bottom: 30, 
+		left: 40}
+
+    var width = 900;
+    var height = 450;
+
+   	var chartWidth = width - margin.left - margin.right;
+   	var chartHeight = height - margin.top - margin.bottom; 
+
 	//draw initial svg
 	var svg = d3.select("#map_container")
 				.append("svg")
@@ -158,15 +184,22 @@
 				.attr("width",450)
 				.style("position","absolute").style("top",0).style("left",0);
 
+	var svg7 = d3.select("#chart_container")
+				.append("svg")
+				.attr("height",height)
+				.attr("width",width)
+				.style("position","absolute").style("top",0).style("left",0);
+
+
 	
 function plot(thing, name){
 		
 		var xScale = d3.scale.linear()
-					.domain([0,125])
+					.domain([0,124])
 					.range([0,450]);
 
 		var yScale = d3.scale.linear()
-					.domain([0,125])
+					.domain([0,124])
 					.range([450,0]);
 
 
@@ -198,13 +231,71 @@ function plot(thing, name){
 	
 }
 
+function chart(thing, name){
+	var x = d3.scale.ordinal()
+    	.rangeRoundBands([0, chartWidth], .1);
+
+	var y = d3.scale.linear()
+    	.range([chartHeight, 0]);
+
+	var xAxis = d3.svg.axis()
+    	.scale(x)
+    	.orient("bottom");
+
+	var yAxis = d3.svg.axis()
+    	.scale(y)
+    	.orient("left")
+    	.ticks(10, "%");
+
+    var colorScale = d3.scale.category20();
+
+	thing.append("g")
+    	d3.csv(name, function(data){
+    		console.log(data);
+
+    		x.domain(data.map(function(d) { return d.zone; }));
+  			y.domain([0, Math.max.apply(Math,data.map(function(data){return data.value;}))]);
+
+  			thing.append("g")
+		      	.attr("class", "x axis")
+		      	.attr("transform", "translate(0," + chartHeight + ")")
+		      	.call(xAxis)
+		      	.selectAll("text")  
+		            .style("text-anchor", "end")
+		            .attr("dx", "-.8em")
+		            .attr("dy", ".15em")
+		            .attr("transform", "rotate(-65)" );
+
+			thing.append("g")
+			    .attr("class", "y axis")
+			    .call(yAxis)
+			    .append("text")
+			    .attr("transform", "rotate(-90)")
+			    .attr("y", 6)
+			    .attr("dy", ".71em")
+			    .style("text-anchor", "end")
+			    .text("Popularity");
+
+			thing.selectAll(".bar")
+      			.data(data)
+    			.enter().append("rect")
+      			.attr("class", "bar")
+      			.attr("x", function(d) { return x(d.zone); })
+      			.attr("width", x.rangeBand())
+      			.attr("y", function(d) { return y(d.value); })
+      			.style("fill", function(d) { return colorScale(d.zone); })
+      			.attr("height", function(d) { return chartHeight - y(d.value); });
+
+		});
+}
+
 plot(svg, "openings_heatmap.csv");
 plot(svg2, "openings_heatmap2.csv");
 plot(svg3, "openings_heatmap_radiant.csv");
 plot(svg4, "openings_heatmap_radiant2.csv");
 plot(svg5, "openings_heatmap_dire.csv");
 plot(svg6, "openings_heatmap_dire2.csv");
-
+chart(svg7, "/popularity/radiant1.csv");
 
 </script>
 </html>
