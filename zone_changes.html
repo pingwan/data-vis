@@ -37,6 +37,12 @@ body {
     	position: relative; 
   
     }
+    #chart_container2{
+    	width: 910px; 
+    	height: 500px;
+    	padding: 0;
+    	position: relative; 
+    }
 
     #matches_container{
     	width: 100%;
@@ -47,6 +53,23 @@ body {
     .label:hover{
     	cursor: pointer;
     }
+
+    #map_container{
+    	width: 450px; 
+    	height: 450px;
+    	padding: 0;
+    	position: relative; 
+  
+    }
+    #map{ 
+    	width: 450px; 
+    	height: 450px;
+    }
+    .trendline1, .trendline2 {
+	  fill: none;
+	  stroke-width: 1.5px;
+	}
+
 
 </style>
 
@@ -66,6 +89,7 @@ body {
 			<h1>Zone changes per quarter</h1>
 		</div>
 	</div>
+
 	<!-- row for map and table -->
 	<div class="row">
 		<div class="col-xs-6">
@@ -84,14 +108,70 @@ body {
 				other statistics here
 		</div>
 	</div>
+<div class="row">
+		<div class="col-xs-6">
+			<h1>Change of value each team has according to zones </h1>
+		</div>
+	</div>
+<!-- row for maps -->
+	<div class="row">
+		<div class="col-xs-6">
+			<div id="chart_container2">
+				
+			</div>
+		</div>
+		<div class="col-xs-6">
+			<div id="chart_legend">
+				
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-6">
+			<h1>Zone values shown on the map</h1>
+		</div>
+	</div>
+	<!-- row for maps -->
+	<div class="row">
+		<div class="col-xs-6">
+			<div id="map_container">
+				<img id="map" src="map.jpg">
+			</div>
+		</div>
+		<div class="col-xs-6">
+			<div id="map_container2">
+				<img id="map" src="map.jpg">
+			</div>
+		</div>
+	</div>
+	
+
+	<!-- row for legend and other statistics -->
+	<div class="row">
+		<div class="col-xs-6">
+			bla bla
+		</div>
+		<div class="col-xs-6">
+			bla bla
+		</div>
+	</div>
+</div>
 
 </body>
 
 <script>
 
-var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = 450,
-    height = 450;
+var margin = {
+		top: 20, 
+		right: 20, 
+		bottom: 30, 
+		left: 40}
+
+    var width = 450;
+    var height = 450;
+
+   	var chartWidth = width - margin.left - margin.right;
+   	var chartHeight = height - margin.top - margin.bottom; 
 
 var x0 = d3.scale.ordinal()
     .rangeRoundBands([0, width], .1);
@@ -120,7 +200,40 @@ var svg = d3.select("#chart_container")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	//.style("position","absolute").style("top",0).style("left",0);
-	//
+
+var svg2 = d3.select("#chart_container2")
+	.append("svg")
+    .attr("width", 900 + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var chart = svg2.append("g")
+				.attr("height",chartHeight)
+				.attr("width",chartWidth)
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	var xAxis_group = chart.append("g")
+				.attr("class","axis")
+  				.attr("transform", "translate(0," + chartHeight + ")")
+
+  	var yAxis_group = chart.append("g")
+  				.attr("class","axis")
+
+ // xAxis label
+	chart.append("text") 
+		.attr("transform", "translate(" + ((width / 2)-margin.left) + " ," + (height - margin.bottom) +")")
+		.style("text-anchor", "middle")
+		.text("tsync");
+
+	//yAxis label
+	chart.append("text")
+			.attr("transform", "rotate(-90)")
+			.attr("y", 0 - margin.left)
+			.attr("x", 0 - ((height / 2) - margin.top))
+			.attr("dy", "1em")
+			.style("text-anchor", "middle")
+			.text("Value");
 	
 var originalData;
 //Read available matches
@@ -129,6 +242,8 @@ var originalData;
 		createMatchTable(data);
 
 	});
+
+
 
 function parseDate(d){
 		d.x = parseInt(d.x);
@@ -191,29 +306,42 @@ function createMatchTable(data){
 	   }).on("click",function(d,i){
 	   	if(i == 2){
 	   				
-
+	   			//d3.selectAll('.axis').remove()
 	   			var file_name = "/matches/" + d[0] + ".csv"
 				d3.csv(file_name,parseDate,function(error,data){
-					d3.selectAll("rect").remove();
-					d3.selectAll('.axis').remove();
-					d3.selectAll(".legend").remove();
+					svg.selectAll("*").remove();
 					//document.getElementById("stuff").innerHTML = "";
 					originalData = data;
-					chart(originalData);
+					chartZoneChanges(originalData);
 				});	
-
+				var value_filename = "matches_value/" + d[0] + ".csv"
+				d3.csv(value_filename,function(data){
+					//d3.select("#chart_container2")
+						//.selectAll("rect").remove();
+					//d3.selectAll('.axis').remove();
+					//d3.selectAll(".legend").remove();
+					//document.getElementById("stuff").innerHTML = "";
+					d3.select("#chart_container2")
+						//.selectAll("rect").remove()
+						//.selectAll('.axis').remove()
+						.selectAll('.path').remove()
+						.selectAll(".legend").remove();
+					originalData = data;
+					console.log(value_filename);
+					chartValues(originalData);
+				});	
 	   	}
 	   });
 	}
 	
-function chart(data){
+function chartZoneChanges(data){
 	//d3.csv("matches/569716737.csv",function(data){
 
   var radiant = [0, 0, 0, 0];
   var dire = [0,0,0,0];
   var player = "";
   var maxTime = 0;
-  console.log(data[0]);
+  
   if(data[0].winner = "1" && data[0].team == "radiant"){
   	winner = data[0].team;
   } else{ winner = "dire";}
@@ -360,10 +488,122 @@ function chart(data){
       .attr("dy", ".35em")
       .style("text-anchor", "end")
       .text(function(d) { return d; });
-
-      
-
-	  
-//});
 }
+
+function values(){
+		var xScale = d3.scale.linear()
+					.domain([0,123])
+					.range([0,450]);
+
+		var yScale = d3.scale.linear()
+					.domain([0,123])
+					.range([450,0]);
+
+
+		var colorScale = d3.scale.ordinal()
+    				.domain([0.0,18.0])
+    				//.range(['#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b']);
+    				.range(['#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d']);
+
+    	var pixel = xScale(1);
+
+    	var svgmap = d3.select("#map_container")
+				.append("svg")
+				.attr("height",450)
+				.attr("width",450)
+				.style("position","absolute").style("top",0).style("left",0);
+	d3.csv("DotaLabels.csv",function(data){
+		
+	svgmap.selectAll('rect')
+		.data(data)
+		.enter()
+		.append('rect')
+		.attr("x", function(d) { return xScale(d.x); })
+        .attr("y", function(d) { return yScale(d.y); })
+		.attr("width", pixel)
+		.attr("height", pixel)
+		.style("fill", function(d) { return colorScale(d.value); });
+
+	});
+
+}
+
+function chartValues(data){
+		var xScale = d3.scale.linear()
+					.range([0,900]);
+
+		var yScale = d3.scale.linear()
+					.range([chartHeight,0]);
+
+
+		var colorScale = d3.scale.ordinal()
+    				.domain([0.0,1.0])
+    				.range(['red', 'blue']);
+
+
+    	var nest = d3.nest()
+    			.key(function(d) { return d.team; })
+    			.sortKeys(d3.ascending)
+    			.entries(data);
+    	console.log(nest);
+    	var team1_data = nest[0].values;
+    	var team2_data = nest[1].values;
+    	console.log(team1_data);
+    	console.log(team2_data);
+    	console.log(team1_data.length);
+    	var yMax = Math.max.apply(Math,data.map(function(data){return data.value;}));
+    	xScale.domain([0,team1_data.length]);
+
+		yScale.domain([0,yMax]);
+
+		var xAxis = d3.svg.axis()
+    			.scale(xScale)
+    			.orient("bottom");
+
+    	var yAxis = d3.svg.axis()
+    			.scale(yScale)
+    			.orient("left");
+
+    	// Define the line
+		var valueline = d3.svg.line()
+    		.x(function(d) { return xScale(d.time); })
+    		.y(function(d) { return yScale(d.value); });
+
+    	var trendLine1 = chart.selectAll(".trendline1").data([team1_data]);
+
+    	//enter
+    	trendLine1.enter().append("path").classed("trendline1",true);
+    	//update
+    	trendLine1.transition().duration(1000).ease("linear")
+					.attr("d",function(d){
+    					return valueline(d);
+    				}).style("stroke",function(d){
+    					return colorScale(d[0].team);
+    				});
+
+    	var trendLine2 = chart.selectAll(".trendline2").data([team2_data]);
+
+    	//enter
+    	trendLine2.enter().append("path").classed("trendline2",true);
+    	//update
+    	trendLine2.transition().duration(1000).ease("linear")
+					.attr("d",function(d){
+			    		return valueline(d);
+			    	}).style("stroke",function(d){
+			    		return colorScale(d[0].team);
+			    	});
+
+    	//exit
+    	trendLine1.exit().remove();
+    	trendLine2.exit().remove();
+    	
+    	//update axis
+   		xAxis_group.transition().call(xAxis);
+   		yAxis_group.transition().call(yAxis);
+}
+
+values();
+
+
+
 </script>
