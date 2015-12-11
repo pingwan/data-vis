@@ -27,8 +27,9 @@ try:
 finally:
     f.close()
 #print store
-store2 = {};
-def popularity(filename):
+
+def popularity(filename, target):
+    store2 = {};
     f = open(filename, 'rt')
     try:
         reader = csv.reader(f)
@@ -48,7 +49,7 @@ def popularity(filename):
 
     #print store2
 
-    with open("heatmaps/test.csv", "w") as myfile:
+    with open(target, "w") as myfile:
         myfile.write("zone,value\n")
         myfile.close();
 
@@ -61,11 +62,17 @@ def popularity(filename):
         store2[key] = (store2[key] / sumHeat)
     print store2
 
+    #store2 = sorted(store2);
+
     for key, value in store2.iteritems() :
-        with open("heatmaps/test.csv", "a") as myfile:
+        with open(target, "a") as myfile:
             myfile.write(key + "," + str(value) + "\n")
             myfile.close();
         #print key, value
     return
 
-popularity('heatmaps/openings_heatmap.csv');
+popularity('heatmaps/openings_heatmap_radiant.csv', "heatmaps/radiant.csv");
+popularity('heatmaps/openings_heatmap_radiant2.csv', "heatmaps/radiant2.csv");
+popularity('heatmaps/openings_heatmap_dire.csv', "heatmaps/dire.csv");
+popularity('heatmaps/openings_heatmap_dire2.csv', "heatmaps/dire2.csv");
+
