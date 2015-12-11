@@ -29,6 +29,25 @@
     	padding: 0;
     	position: relative; 
     }
+    #chart_container2{
+    	width: 900px; 
+    	height: 500px;
+    	padding: 0;
+    	position: relative; 
+    }
+    #chart_container3{
+    	width: 900px; 
+    	height: 500px;
+    	padding: 0;
+    	position: relative; 
+    }
+    #chart_container4{
+    	width: 900px; 
+    	height: 500px;
+    	padding: 0;
+    	position: relative; 
+    }
+
 
 
   </style>
@@ -49,7 +68,7 @@
 			<h1>Opening strategies</h1>
 		</div>
 	</div>
-	<!-- row for maps -->
+	<!-- row for maps of general heatmap-->
 	<div class="row">
 		<div class="col-xs-6">
 			<div id="map_container">
@@ -73,7 +92,11 @@
 			Heatmap of both teams overlayed for the first 10% of the game with frequency.
 		</div>
 	</div>
-
+	<div class="row">
+		<div class="col-xs-6">
+			<h2>Opening strategies for Radiant</h2>
+		</div>
+	</div>
 	<!-- row for maps -->
 	<div class="row">
 		<div class="col-xs-6">
@@ -105,6 +128,31 @@
 			</div>
 		</div>
 	</div>
+	<div class="row">
+		<div class="col-xs-6">
+			Above shows popularity of zones of winning Radiant openings
+		</div>
+	</div>
+	<!--Chart-->
+	<div class="row">
+		<div class="col-xs-6">
+			<div id="chart_container2">
+				
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-6">
+			Above shows popularity of zones of winning Radiant openings with frequency
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-xs-6">
+			<h2>Opening strategies for Dire</h2>
+		</div>
+	</div>
+
 	<!-- row for maps -->
 	<div class="row">
 		<div class="col-xs-6">
@@ -118,6 +166,7 @@
 			</div>
 		</div>
 	</div>
+	
 
 <!-- row for legend and other statistics -->
 	<div class="row">
@@ -126,6 +175,32 @@
 		</div>
 		<div class="col-xs-6">
 			Heatmap of the dire for the first 10% of the game with frequency.
+		</div>
+	</div>
+	<!--Chart-->
+	<div class="row">
+		<div class="col-xs-6">
+			<div id="chart_container3">
+				
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-6">
+			Above shows popularity of zones of winning Dire openings
+		</div>
+	</div>
+
+	<!--Chart-->
+	<div class="row">
+		<div class="col-xs-6">
+			<div id="chart_container4">
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-6">
+			Above shows popularity of zones of winning Dire openings with frequency
 		</div>
 	</div>
 
@@ -139,7 +214,7 @@
 	var margin = {
 		top: 20, 
 		right: 20, 
-		bottom: 30, 
+		bottom: 125, 
 		left: 40}
 
     var width = 900;
@@ -190,6 +265,24 @@
 				.attr("width",width)
 				.style("position","absolute").style("top",0).style("left",0);
 
+	var svg8 = d3.select("#chart_container2")
+				.append("svg")
+				.attr("height",height)
+				.attr("width",width)
+				.style("position","absolute").style("top",0).style("left",0);
+
+	var svg9 = d3.select("#chart_container3")
+				.append("svg")
+				.attr("height",height)
+				.attr("width",width)
+				.style("position","absolute").style("top",0).style("left",0);
+
+	var svg10 = d3.select("#chart_container4")
+				.append("svg")
+				.attr("height",height)
+				.attr("width",width)
+				.style("position","absolute").style("top",0).style("left",0);
+
 
 	
 function plot(thing, name){
@@ -223,7 +316,8 @@ function plot(thing, name){
 	        .attr("y", function(d) { return yScale(d.y); })
 			.attr("width", pixel)
 			.attr("height", pixel)
-			.style("fill", function(d) { return colorScale(d.heat); });
+			.style("fill", function(d) { return colorScale(d.heat); })
+			.style("opacity", 0.5);
 
 
 		
@@ -248,6 +342,8 @@ function chart(thing, name){
     	.ticks(10, "%");
 
     var colorScale = d3.scale.category20();
+
+
 
 	thing.append("g")
     	d3.csv(name, function(data){
@@ -296,6 +392,9 @@ plot(svg4, "openings_heatmap_radiant2.csv");
 plot(svg5, "openings_heatmap_dire.csv");
 plot(svg6, "openings_heatmap_dire2.csv");
 chart(svg7, "/popularity/radiant1.csv");
+chart(svg8, "/popularity/radiant2.csv");
+chart(svg9, "/popularity/dire.csv");
+chart(svg10, "/popularity/dire2.csv");
 
 </script>
 </html>
