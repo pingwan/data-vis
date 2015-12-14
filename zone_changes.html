@@ -70,7 +70,6 @@ body {
 	  stroke-width: 1.5px;
 	}
 
-
 </style>
 
 <!--[if lt IE 9]>
@@ -80,71 +79,58 @@ body {
   <script src="/libraries/d3.min.js" charset="utf-8"></script>
 </head>
 <body>
-
-<div class="container" id="main-wrapper">
-	<!-- row for title -->	
-	<div class="row">
-		<div class="col-xs-6">
-			<h1>Zone changes per quarter</h1>
-		</div>
-	</div>
-
-	<!-- row for map and table -->
-	<div class="row">
-		<div class="col-xs-6">
-			<div id="chart_container">
-				
+	<div class="container" id="main-wrapper">
+		<!-- row for title -->	
+		<div class="row">
+			<div class="col-xs-12">
+				<h1>Zone changes per quarter</h1>
 			</div>
 		</div>
-		<div class="col-xs-6">
-			<div id="matches_container">
+		<!-- row for map and table -->
+		<div class="row">
+			<div class="col-xs-7">
+				<div id="chart_container"></div>
+			</div>
+			<div class="col-xs-5">
+				<div id="matches_container"></div>
+			</div>
+		</div>
+		<!-- row for legend and other statistics -->
+		<div class="row" >
+			<div class="col-xs-6" id="stuff"></div>
+		</div>
+
+		<div class="row">
+			<div class="col-xs-12">
+				<h1>Zone values shown on the map</h1>
+			</div>
+		</div>
+		<!-- row for maps -->
+		<div class="row">
+			<div class="col-xs-6">
+				<div id="map_container">
+					<img id="map" src="map.jpg">
+				</div>
+			</div>
+		</div>
+
+		<!-- row for legend and other statistics -->
+		<div class="row">
+			<div class="col-xs-6">
+				xxx
+			</div>
+			<div class="col-xs-6">
+				xxx
 			</div>
 		</div>
 	</div>
-	<!-- row for legend and other statistics -->
-	<div class="row" >
-		<div class="col-xs-6" id="stuff">
-				other statistics here
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="col-xs-6">
-			<h1>Zone values shown on the map</h1>
-		</div>
-	</div>
-	<!-- row for maps -->
-	<div class="row">
-		<div class="col-xs-6">
-			<div id="map_container">
-				<img id="map" src="map.jpg">
-			</div>
-		</div>
-		<div class="col-xs-6">
-			<div id="map_container2">
-				<img id="map" src="map.jpg">
-			</div>
-		</div>
-	</div>
-
-	<!-- row for legend and other statistics -->
-	<div class="row">
-		<div class="col-xs-6">
-			bla bla
-		</div>
-		<div class="col-xs-6">
-			bla bla
-		</div>
-	</div>
-</div>
-
 </body>
 
 <script>
 
 var margin = {
 		top: 20, 
-		right: 20, 
+		right: 50, 
 		bottom: 30, 
 		left: 40}
 
@@ -180,17 +166,21 @@ var svg = d3.select("#chart_container")
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-	//.style("position","absolute").style("top",0).style("left",0);
 	
 var originalData;
 //Read available matches
 	d3.csv("preprocessing/available_matches.csv",function(data){
-
 		createMatchTable(data);
 
+		var file_name = "preprocessing/master_zones/" + data[0].match + ".csv"
+				d3.csv(file_name,parseDate,function(error,data){
+					svg.selectAll("*").remove();
+					originalData = data;
+					chartZoneChanges(originalData);
+				});	
+
+
 	});
-
-
 
 function parseDate(d){
 		d.x = parseInt(d.x);
@@ -252,12 +242,9 @@ function createMatchTable(data){
 	   		}   		
 	   }).on("click",function(d,i){
 	   	if(i == 2){
-	   				
-	   			//d3.selectAll('.axis').remove()
 	   			var file_name = "preprocessing/master_zones/" + d[0] + ".csv"
 				d3.csv(file_name,parseDate,function(error,data){
 					svg.selectAll("*").remove();
-					//document.getElementById("stuff").innerHTML = "";
 					originalData = data;
 					chartZoneChanges(originalData);
 				});	
@@ -267,7 +254,6 @@ function createMatchTable(data){
 	
 function chartZoneChanges(data){
 	
-
   var radiant = [0, 0, 0, 0];
   var dire = [0,0,0,0];
   var player = "";
@@ -281,14 +267,11 @@ function chartZoneChanges(data){
   var winner = "";
 	var team = "";
 	for (i = 0; i < data.length; i++) {
-		if(player == "")
-		{
+		if(player == ""){
 			player = data[i].player;
 		}
-		if(player == data[i].player)
-		{
+		if(player == data[i].player){
 			maxTime++;
-			
 		}
 	}
   
@@ -299,15 +282,12 @@ function chartZoneChanges(data){
   var player = "";
   
   for (i = 0; i < data.length; i++) {
-		if(player == "")
-		{
+		if(player == ""){
 			player = data[i].player;
 			zone = data[i].zone;
 		}
-		if(player == data[i].player)
-		{
-			if(data[i].team == 'radiant' && zone != data[i].zone)
-			{
+		if(player == data[i].player){
+			if(data[i].team == 'radiant' && zone != data[i].zone){
 				var time = +data[i].tsync;
 				if(time < quarterTime){
 					radiant[0]++;
@@ -322,8 +302,7 @@ function chartZoneChanges(data){
 					radiant[3]++;
 				}
 			}
-			if(data[i].team == 'dire' && zone != data[i].zone)
-			{
+			if(data[i].team == 'dire' && zone != data[i].zone){
 				var time = +data[i].tsync;
 				if(time < quarterTime){
 					dire[0]++;
@@ -358,20 +337,15 @@ function chartZoneChanges(data){
     d.ages = bla.map(function(name) { return {name: name, value: +d[name]}; });
   });
 
-  //console.log(stuff2);
-
   x0.domain(stage);
   x1.domain(['radiant', 'dire']).rangeRoundBands([0, x0.rangeBand()]);
   var maxChanges = Math.max(Math.max(...radiant), Math.max(...dire));
   y.domain([0, maxChanges]);
   
-
-  
   svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
       .call(xAxis);
-      
 
   svg.append("g")
       .attr("class", "y axis")
@@ -382,7 +356,6 @@ function chartZoneChanges(data){
       .attr("dy", ".71em")
       .style("text-anchor", "end")
       .text("Zone Changes");
-	  
 	  
 	  var stages = svg.selectAll(".state")
       .data(stuff2)
@@ -399,13 +372,12 @@ function chartZoneChanges(data){
       .attr("y", function(d) { return y(d.value); })
       .attr("height", function(d) { return height - y(d.value); })
       .style("fill", function(d) { return color(d.name); });
-	  //.style("fill", function(d) { return (d.name == "radiant");} ? "red": "blue");
 	  
 	  var legend = svg.selectAll(".legend")
       .data(bla.slice().reverse())
     .enter().append("g")
       .attr("class", "legend")
-      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+      .attr("transform", function(d, i) { return "translate("+ 50 +"," + i * 20 + ")"; });
 
 	legend.append("rect")
       .attr("x", width - 18)
@@ -421,28 +393,25 @@ function chartZoneChanges(data){
       .text(function(d) { return d; });
 }
 
-function values(){
-		var xScale = d3.scale.linear()
-					.domain([0,123])
-					.range([0,450]);
+function markZones(){
+	var xScale = d3.scale.linear()
+				.domain([0,123])
+				.range([0,450]);
 
-		var yScale = d3.scale.linear()
-					.domain([0,123])
-					.range([450,0]);
+	var yScale = d3.scale.linear()
+				.domain([0,123])
+				.range([450,0]);
 
+	var colorScale =  d3.scale.category20();
 
-		var colorScale = d3.scale.ordinal()
-    				.domain([0.0,18.0])
-    				//.range(['#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b']);
-    				.range(['#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d']);
+	var pixel = xScale(1);
 
-    	var pixel = xScale(1);
+	var svgmap = d3.select("#map_container")
+			.append("svg")
+			.attr("height",450)
+			.attr("width",450)
+			.style("position","absolute").style("top",0).style("left",0);
 
-    	var svgmap = d3.select("#map_container")
-				.append("svg")
-				.attr("height",450)
-				.attr("width",450)
-				.style("position","absolute").style("top",0).style("left",0);
 	d3.csv("preprocessing/original_data/DotaLabels.csv",function(data){
 		
 	svgmap.selectAll('rect')
@@ -454,87 +423,9 @@ function values(){
 		.attr("width", pixel)
 		.attr("height", pixel)
 		.style("fill", function(d) { return colorScale(d.value); });
-
 	});
-
 }
 
-function chartValues(data){
-		var xScale = d3.scale.linear()
-					.range([0,900]);
-
-		var yScale = d3.scale.linear()
-					.range([chartHeight,0]);
-
-
-		var colorScale = d3.scale.ordinal()
-    				.domain([0.0,1.0])
-    				.range(['red', 'blue']);
-
-
-    	var nest = d3.nest()
-    			.key(function(d) { return d.team; })
-    			.sortKeys(d3.ascending)
-    			.entries(data);
-    	console.log(nest);
-    	var team1_data = nest[0].values;
-    	var team2_data = nest[1].values;
-    	console.log(team1_data);
-    	console.log(team2_data);
-    	console.log(team1_data.length);
-    	var yMax = Math.max.apply(Math,data.map(function(data){return data.value;}));
-    	xScale.domain([0,team1_data.length]);
-
-		yScale.domain([0,yMax]);
-
-		var xAxis = d3.svg.axis()
-    			.scale(xScale)
-    			.orient("bottom");
-
-    	var yAxis = d3.svg.axis()
-    			.scale(yScale)
-    			.orient("left");
-
-    	// Define the line
-		var valueline = d3.svg.line()
-    		.x(function(d) { return xScale(d.time); })
-    		.y(function(d) { return yScale(d.value); });
-
-    	var trendLine1 = chart.selectAll(".trendline1").data([team1_data]);
-
-    	//enter
-    	trendLine1.enter().append("path").classed("trendline1",true);
-    	//update
-    	trendLine1.transition().duration(1000).ease("linear")
-					.attr("d",function(d){
-    					return valueline(d);
-    				}).style("stroke",function(d){
-    					return colorScale(d[0].team);
-    				});
-
-    	var trendLine2 = chart.selectAll(".trendline2").data([team2_data]);
-
-    	//enter
-    	trendLine2.enter().append("path").classed("trendline2",true);
-    	//update
-    	trendLine2.transition().duration(1000).ease("linear")
-					.attr("d",function(d){
-			    		return valueline(d);
-			    	}).style("stroke",function(d){
-			    		return colorScale(d[0].team);
-			    	});
-
-    	//exit
-    	trendLine1.exit().remove();
-    	trendLine2.exit().remove();
-    	
-    	//update axis
-   		xAxis_group.transition().call(xAxis);
-   		yAxis_group.transition().call(yAxis);
-}
-
-values();
-
-
+markZones();
 
 </script>

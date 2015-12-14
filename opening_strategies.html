@@ -47,6 +47,12 @@
     	position: relative; 
     }
 
+    .axis path {
+	    fill: none;
+	    stroke: black;
+	    shape-rendering: crispEdges;
+	}
+
   </style>
 
   <!--[if lt IE 9]>
@@ -106,7 +112,6 @@
 	<div class="row">
 		<div class="col-xs-6">
 			<div id="stats">
-				
 			</div>
 		</div>
 	</div>
@@ -185,15 +190,14 @@ function chart(thing, name){
 	var yAxis = d3.svg.axis()
     	.scale(y)
     	.orient("left");
-    	//.ticks(10, "%");
 
     var colorScale = d3.scale.category20();
 
 	thing.append("g")
     	d3.csv(name, function(data){
-    		//console.log(data);
+    	
     		var zones = ["base1 radiant", "base2 dire", "bottomlane dire", "bottomlane radiant", "jungle dire", "jungle radiant", "laneshop dire", "laneshop radiant", "midlane dire", "midlane radiant", "pit dire", "river", "secretshop dire", "secretshop radiant", "toplane dire", "toplane radiant", "void dire", "void radiant"]
-    		//x.domain(data.map(function(d) { return d.zone; }));
+    
     		x.domain(zones);
   			y.domain([0, Math.max.apply(Math,data.map(function(data){return data.value;}))]);
   			data = data.sort(compareNames);
@@ -250,7 +254,7 @@ plot(svg, "preprocessing/heatmaps/openings_heatmap.csv");
 chart(svg7, "preprocessing/popularity/both.csv");
 
 function handler() {
-    	//alert('clicked');
+    	
     	svg.selectAll("*").remove();
     	svg7.selectAll("*").remove();
 
