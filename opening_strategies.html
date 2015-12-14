@@ -75,52 +75,38 @@
 				<img id="map" src="map.jpg">
 			</div>
 		</div>
+		<!--
 		<div class="col-xs-6">
 			<div id="map_container2">
 				<img id="map" src="map.jpg">
 			</div>
 		</div>
-	</div>
+	-->
+		
+		<div class="col-xs-6">
+			<div id="radio_column">
+				Show heat of team:
+				<form action="">
+				<input type="radio" name="team" value="radiant" id="radio_team" onClick="handler()">Radiant<br>
+				<input type="radio" name="team" value="dire" onClick="handler()">Dire<br>
+				<input type="radio" name="team" value="both" id="radio_team_both"  onClick="handler()" checked="true" >Both
+				</form>
+				Show opening strategy with or without frequency:
+				<form action="" >
+				<input type="radio" name="freq" value="with"  id="radio_freq" onClick="handler()">With<br>
+				<input type="radio" name="freq" value="without" onClick="handler()" checked="true" >Without
+				</form>
+				Show opening of games:
+				<form action="" >
+				<input type="radio" name="win" value="win" checked="true" id="winning" onClick="handler()">Winning<br>
+				<input type="radio" name="win" value="lose" id="losing" onClick="handler()">Losing<br>
+				<input type="radio" name="win" value="all" id="both" onClick="handler()">All
+				</form>
+			</div>
+		</div>
 	
-
-	<!-- row for legend and other statistics -->
-	<div class="row">
-		<div class="col-xs-6">
-			Heatmap of both teams overlayed for the first 10% of the game.
-		</div>
-		<div class="col-xs-6">
-			Heatmap of both teams overlayed for the first 10% of the game with frequency.
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-xs-6">
-			<h2>Opening strategies for Radiant</h2>
-		</div>
-	</div>
-	<!-- row for maps -->
-	<div class="row">
-		<div class="col-xs-6">
-			<div id="map_container3">
-				<img id="map" src="map.jpg">
-			</div>
-		</div>
-		<div class="col-xs-6">
-			<div id="map_container4">
-				<img id="map" src="map.jpg">
-			</div>
-		</div>
 	</div>
 
-<!-- row for legend and other statistics -->
-	<div class="row">
-		<div class="col-xs-6">
-			Heatmap of the radiant for the first 10% of the game.
-		</div>
-		<div class="col-xs-6">
-			Heatmap of the radiant for the first 10% of the game with frequency.
-		</div>
-	</div>
-<!--Chart-->
 	<div class="row">
 		<div class="col-xs-6">
 			<div id="chart_container">
@@ -128,81 +114,16 @@
 			</div>
 		</div>
 	</div>
+
 	<div class="row">
 		<div class="col-xs-6">
-			Above shows popularity of zones of winning Radiant openings
-		</div>
-	</div>
-	<!--Chart-->
-	<div class="row">
-		<div class="col-xs-6">
-			<div id="chart_container2">
+			<div id="stats">
 				
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-xs-6">
-			Above shows popularity of zones of winning Radiant openings with frequency
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="col-xs-6">
-			<h2>Opening strategies for Dire</h2>
-		</div>
-	</div>
-
-	<!-- row for maps -->
-	<div class="row">
-		<div class="col-xs-6">
-			<div id="map_container5">
-				<img id="map" src="map.jpg">
-			</div>
-		</div>
-		<div class="col-xs-6">
-			<div id="map_container6">
-				<img id="map" src="map.jpg">
 			</div>
 		</div>
 	</div>
 	
 
-<!-- row for legend and other statistics -->
-	<div class="row">
-		<div class="col-xs-6">
-			Heatmap of the dire for the first 10% of the game.
-		</div>
-		<div class="col-xs-6">
-			Heatmap of the dire for the first 10% of the game with frequency.
-		</div>
-	</div>
-	<!--Chart-->
-	<div class="row">
-		<div class="col-xs-6">
-			<div id="chart_container3">
-				
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-xs-6">
-			Above shows popularity of zones of winning Dire openings
-		</div>
-	</div>
-
-	<!--Chart-->
-	<div class="row">
-		<div class="col-xs-6">
-			<div id="chart_container4">
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-xs-6">
-			Above shows popularity of zones of winning Dire openings with frequency
-		</div>
-	</div>
 
 </div>	<!-- end container div -->
 
@@ -229,7 +150,7 @@
 				.attr("height",450)
 				.attr("width",450)
 				.style("position","absolute").style("top",0).style("left",0);
-
+/**
 				//draw initial svg
 	var svg2 = d3.select("#map_container2")
 				.append("svg")
@@ -258,13 +179,13 @@
 				.attr("height",450)
 				.attr("width",450)
 				.style("position","absolute").style("top",0).style("left",0);
-
+**/
 	var svg7 = d3.select("#chart_container")
 				.append("svg")
 				.attr("height",height)
 				.attr("width",width)
 				.style("position","absolute").style("top",0).style("left",0);
-
+/**
 	var svg8 = d3.select("#chart_container2")
 				.append("svg")
 				.attr("height",height)
@@ -282,7 +203,7 @@
 				.attr("height",height)
 				.attr("width",width)
 				.style("position","absolute").style("top",0).style("left",0);
-
+**/
 
 	
 function plot(thing, name){
@@ -338,8 +259,8 @@ function chart(thing, name){
 
 	var yAxis = d3.svg.axis()
     	.scale(y)
-    	.orient("left")
-    	.ticks(10, "%");
+    	.orient("left");
+    	//.ticks(10, "%");
 
     var colorScale = d3.scale.category20();
 
@@ -347,14 +268,17 @@ function chart(thing, name){
 
 	thing.append("g")
     	d3.csv(name, function(data){
-    		console.log(data);
-
-    		x.domain(data.map(function(d) { return d.zone; }));
+    		//console.log(data);
+    		var zones = ["base1 radiant", "base2 dire", "bottomlane dire", "bottomlane radiant", "jungle dire", "jungle radiant", "laneshop dire", "laneshop radiant", "midlane dire", "midlane radiant", "pit dire", "river", "secretshop dire", "secretshop radiant", "toplane dire", "toplane radiant", "void dire", "void radiant"]
+    		//x.domain(data.map(function(d) { return d.zone; }));
+    		x.domain(zones);
   			y.domain([0, Math.max.apply(Math,data.map(function(data){return data.value;}))]);
-
+  			data = data.sort(compareNames);
+  			var y_correction = 40;
+  			var x_correction = 30;
   			thing.append("g")
 		      	.attr("class", "x axis")
-		      	.attr("transform", "translate(0," + chartHeight + ")")
+		      	.attr("transform", "translate("+ y_correction + "," + (chartHeight+x_correction) + ")")
 		      	.call(xAxis)
 		      	.selectAll("text")  
 		            .style("text-anchor", "end")
@@ -364,6 +288,7 @@ function chart(thing, name){
 
 			thing.append("g")
 			    .attr("class", "y axis")
+			    .attr("transform", "translate(" + y_correction + ","+ x_correction+")")
 			    .call(yAxis)
 			    .append("text")
 			    .attr("transform", "rotate(-90)")
@@ -379,22 +304,142 @@ function chart(thing, name){
       			.attr("x", function(d) { return x(d.zone); })
       			.attr("width", x.rangeBand())
       			.attr("y", function(d) { return y(d.value); })
-      			.style("fill", function(d) { return colorScale(d.zone); })
+      			.style("fill", function(d) { 
+      				return colorScale(d.zone); 
+      			})
+      			.attr("transform", "translate(" + y_correction + ","+ x_correction+")")
       			.attr("height", function(d) { return chartHeight - y(d.value); });
+
+      			temp = data.sort(compare);
+
+      			var stat_string = "Popularity ranking:<br>";
+
+      			for (var i = 0; i < temp.length; i++) {
+      				stat_string = stat_string + (i+1) + ". " + temp[i].zone + "<br>";
+      			};
+
+      			document.getElementById("stats").innerHTML = stat_string;
 
 		});
 }
 
-plot(svg, "openings_heatmap.csv");
-plot(svg2, "openings_heatmap2.csv");
-plot(svg3, "openings_heatmap_radiant.csv");
-plot(svg4, "openings_heatmap_radiant2.csv");
-plot(svg5, "openings_heatmap_dire.csv");
-plot(svg6, "openings_heatmap_dire2.csv");
-chart(svg7, "/popularity/radiant1.csv");
-chart(svg8, "/popularity/radiant2.csv");
-chart(svg9, "/popularity/dire.csv");
-chart(svg10, "/popularity/dire2.csv");
+plot(svg, "/heatmaps/openings_heatmap.csv");
+chart(svg7, "/popularity/both.csv");
+//plot(svg2, "openings_heatmap2.csv");
+//plot(svg3, "openings_heatmap_radiant.csv");
+//plot(svg4, "openings_heatmap_radiant2.csv");
+//plot(svg5, "openings_heatmap_dire.csv");
+//plot(svg6, "openings_heatmap_dire2.csv");
+//chart(svg7, "/popularity/radiant1.csv");
+//chart(svg8, "/popularity/radiant2.csv");
+//chart(svg9, "/popularity/dire.csv");
+//chart(svg10, "/popularity/dire2.csv");
 
+
+function handler() {
+    	//alert('clicked');
+    	svg.selectAll("*").remove();
+    	svg7.selectAll("*").remove();
+
+    	var radiant_bool = document.getElementById('radio_team').checked
+    	var frequency = document.getElementById('radio_freq').checked
+    	var both = document.getElementById('radio_team_both').checked
+    	if(document.getElementById('winning').checked){
+	    	if(radiant_bool && frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_radiant.csv");
+	    			chart(svg7, "/popularity/radiant2.csv");
+	    	}
+	    	else if(radiant_bool && !frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_radiant.csv");
+	    			chart(svg7, "/popularity/radiant2.csv");
+	    	}
+	    	else if(both && !frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap.csv");
+	    			chart(svg7, "/popularity/both.csv");
+	    	}
+	    	else if(both && frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap2.csv");
+	    			chart(svg7, "/popularity/both2.csv");
+	    	}
+	    	else if(!radiant_bool && frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_dire2.csv");
+	    			chart(svg7, "/popularity/dire2.csv");
+	    	}
+	    	else if(!radiant_bool && !frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_dire.csv");
+	    			chart(svg7, "/popularity/dire.csv");
+	    	}
+    	}
+    	else if(document.getElementById('both').checked){
+	    	if(radiant_bool && frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_radiant_all.csv");
+	    			chart(svg7, "/popularity/radiant2_all.csv");
+	    	}
+	    	else if(radiant_bool && !frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_radiant_all.csv");
+	    			chart(svg7, "/popularity/radiant2_all.csv");
+	    	}
+	    	else if(both && !frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_all.csv");
+	    			chart(svg7, "/popularity/both_all.csv");
+	    	}
+	    	else if(both && frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap2_all.csv");
+	    			chart(svg7, "/popularity/both2_all.csv");
+	    	}
+	    	else if(!radiant_bool && frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_dire2_all.csv");
+	    			chart(svg7, "/popularity/dire2_all.csv");
+	    	}
+	    	else if(!radiant_bool && !frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_dire_all.csv");
+	    			chart(svg7, "/popularity/dire_all.csv");
+	    	}
+    	}
+    	else if(document.getElementById('losing').checked){
+	    	if(radiant_bool && frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_radiant_lose.csv");
+	    			chart(svg7, "/popularity/radiant2_lose.csv");
+	    	}
+	    	else if(radiant_bool && !frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_radiant_lose.csv");
+	    			chart(svg7, "/popularity/radiant2_lose.csv");
+	    	}
+	    	else if(both && !frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_lose.csv");
+	    			chart(svg7, "/popularity/both_lose.csv");
+	    	}
+	    	else if(both && frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap2_lose.csv");
+	    			chart(svg7, "/popularity/both2_lose.csv");
+	    	}
+	    	else if(!radiant_bool && frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_dire2_lose.csv");
+	    			chart(svg7, "/popularity/dire2_lose.csv");
+	    	}
+	    	else if(!radiant_bool && !frequency){
+	    			plot(svg, "/heatmaps/openings_heatmap_dire_all.csv");
+	    			chart(svg7, "/popularity/dire_lose.csv");
+	    	}
+    	}
+    	
+    	//console.log();
+
+    }
+
+  function compare(a,b) {
+	  if (parseFloat(a.value) > parseFloat(b.value))
+	    return -1;
+	  if (parseFloat(a.value) < parseFloat(b.value))
+	    return 1;
+  return 0;
+}
+  function compareNames(a,b) {
+	  if (a.zone < b.zone)
+	    return -1;
+	  if (a.zone > b.zone)
+	    return 1;
+  return 0;
+}
 </script>
 </html>
