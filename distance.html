@@ -299,7 +299,7 @@
 	}
 
 	//Read available matches
-	d3.csv("matches.csv",function(data){
+	d3.csv("preprocessing/available_matches.csv",function(data){
 
 		createSelect(data);
 		currentMatchId = data[0].match;
@@ -340,7 +340,7 @@
 
 	function readMatchFile(matchID){
 
-		var file_name = "/distance-data/" + matchID + ".csv";
+		var file_name = "preprocessing/master-distance/" + matchID + ".csv";
 		d3.csv(file_name,parseDate,function(error,data){
 			plot(data);
 		});	

@@ -246,8 +246,8 @@ function chart(thing, name){
 		});
 }
 
-plot(svg, "/heatmaps/openings_heatmap.csv");
-chart(svg7, "/popularity/both.csv");
+plot(svg, "preprocessing/heatmaps/openings_heatmap.csv");
+chart(svg7, "preprocessing/popularity/both.csv");
 
 function handler() {
     	//alert('clicked');
@@ -259,80 +259,80 @@ function handler() {
     	var both = document.getElementById('radio_team_both').checked
     	if(document.getElementById('winning').checked){
 	    	if(radiant_bool && frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_radiant.csv");
-	    			chart(svg7, "/popularity/radiant2.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_radiant.csv");
+	    			chart(svg7, "preprocessing/popularity/radiant2.csv");
 	    	}
 	    	else if(radiant_bool && !frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_radiant.csv");
-	    			chart(svg7, "/popularity/radiant2.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_radiant.csv");
+	    			chart(svg7, "preprocessing/popularity/radiant2.csv");
 	    	}
 	    	else if(both && !frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap.csv");
-	    			chart(svg7, "/popularity/both.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap.csv");
+	    			chart(svg7, "preprocessing/popularity/both.csv");
 	    	}
 	    	else if(both && frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap2.csv");
-	    			chart(svg7, "/popularity/both2.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap2.csv");
+	    			chart(svg7, "preprocessing/popularity/both2.csv");
 	    	}
 	    	else if(!radiant_bool && frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_dire2.csv");
-	    			chart(svg7, "/popularity/dire2.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_dire2.csv");
+	    			chart(svg7, "preprocessing/popularity/dire2.csv");
 	    	}
 	    	else if(!radiant_bool && !frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_dire.csv");
-	    			chart(svg7, "/popularity/dire.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_dire.csv");
+	    			chart(svg7, "preprocessing/popularity/dire.csv");
 	    	}
     	}
     	else if(document.getElementById('both').checked){
 	    	if(radiant_bool && frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_radiant_all.csv");
-	    			chart(svg7, "/popularity/radiant2_all.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_radiant_all.csv");
+	    			chart(svg7, "preprocessing/popularity/radiant2_all.csv");
 	    	}
 	    	else if(radiant_bool && !frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_radiant_all.csv");
-	    			chart(svg7, "/popularity/radiant2_all.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_radiant_all.csv");
+	    			chart(svg7, "preprocessing/popularity/radiant2_all.csv");
 	    	}
 	    	else if(both && !frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_all.csv");
-	    			chart(svg7, "/popularity/both_all.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_all.csv");
+	    			chart(svg7, "preprocessing/popularity/both_all.csv");
 	    	}
 	    	else if(both && frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap2_all.csv");
-	    			chart(svg7, "/popularity/both2_all.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap2_all.csv");
+	    			chart(svg7, "preprocessing/popularity/both2_all.csv");
 	    	}
 	    	else if(!radiant_bool && frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_dire2_all.csv");
-	    			chart(svg7, "/popularity/dire2_all.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_dire2_all.csv");
+	    			chart(svg7, "preprocessing/popularity/dire2_all.csv");
 	    	}
 	    	else if(!radiant_bool && !frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_dire_all.csv");
-	    			chart(svg7, "/popularity/dire_all.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_dire_all.csv");
+	    			chart(svg7, "preprocessing/popularity/dire_all.csv");
 	    	}
     	}
     	else if(document.getElementById('losing').checked){
 	    	if(radiant_bool && frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_radiant_lose.csv");
-	    			chart(svg7, "/popularity/radiant2_lose.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_radiant_lose.csv");
+	    			chart(svg7, "preprocessing/popularity/radiant2_lose.csv");
 	    	}
 	    	else if(radiant_bool && !frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_radiant_lose.csv");
-	    			chart(svg7, "/popularity/radiant2_lose.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_radiant_lose.csv");
+	    			chart(svg7, "preprocessing/popularity/radiant2_lose.csv");
 	    	}
 	    	else if(both && !frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_lose.csv");
-	    			chart(svg7, "/popularity/both_lose.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_lose.csv");
+	    			chart(svg7, "preprocessing/popularity/both_lose.csv");
 	    	}
 	    	else if(both && frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap2_lose.csv");
-	    			chart(svg7, "/popularity/both2_lose.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap2_lose.csv");
+	    			chart(svg7, "preprocessing/popularity/both2_lose.csv");
 	    	}
 	    	else if(!radiant_bool && frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_dire2_lose.csv");
-	    			chart(svg7, "/popularity/dire2_lose.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_dire2_lose.csv");
+	    			chart(svg7, "preprocessing/popularity/dire2_lose.csv");
 	    	}
 	    	else if(!radiant_bool && !frequency){
-	    			plot(svg, "/heatmaps/openings_heatmap_dire_all.csv");
-	    			chart(svg7, "/popularity/dire_lose.csv");
+	    			plot(svg, "preprocessing/heatmaps/openings_heatmap_dire_all.csv");
+	    			chart(svg7, "preprocessing/popularity/dire_lose.csv");
 	    	}
     	}
     }

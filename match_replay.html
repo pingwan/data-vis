@@ -306,7 +306,7 @@
 
 
 	//Read available matches
-	d3.csv("matches.csv",function(data){
+	d3.csv("preprocessing/available_matches.csv",function(data){
 
 		createMatchTable(data);
 
@@ -375,7 +375,7 @@
 	   			d3.selectAll(".legend_li").remove();
 	   			d3.selectAll(".legend-title").remove();
 
-	   			var file_name = "/master-zones/" + d[0] + ".csv"
+	   			var file_name = "preprocessing/master_zones/" + d[0] + ".csv"
 				d3.csv(file_name,parseDate,function(error,data){
 					originalData = data;
 					plot(originalData);

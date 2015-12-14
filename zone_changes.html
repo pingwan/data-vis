@@ -126,7 +126,7 @@ body {
 			</div>
 		</div>
 	</div>
-	
+
 	<!-- row for legend and other statistics -->
 	<div class="row">
 		<div class="col-xs-6">
@@ -184,7 +184,7 @@ var svg = d3.select("#chart_container")
 	
 var originalData;
 //Read available matches
-	d3.csv("matches.csv",function(data){
+	d3.csv("preprocessing/available_matches.csv",function(data){
 
 		createMatchTable(data);
 
@@ -254,7 +254,7 @@ function createMatchTable(data){
 	   	if(i == 2){
 	   				
 	   			//d3.selectAll('.axis').remove()
-	   			var file_name = "/master-zones/" + d[0] + ".csv"
+	   			var file_name = "preprocessing/master_zones/" + d[0] + ".csv"
 				d3.csv(file_name,parseDate,function(error,data){
 					svg.selectAll("*").remove();
 					//document.getElementById("stuff").innerHTML = "";
@@ -266,7 +266,7 @@ function createMatchTable(data){
 	}
 	
 function chartZoneChanges(data){
-	//d3.csv("matches/569716737.csv",function(data){
+	
 
   var radiant = [0, 0, 0, 0];
   var dire = [0,0,0,0];
@@ -443,7 +443,7 @@ function values(){
 				.attr("height",450)
 				.attr("width",450)
 				.style("position","absolute").style("top",0).style("left",0);
-	d3.csv("DotaLabels.csv",function(data){
+	d3.csv("preprocessing/original_data/DotaLabels.csv",function(data){
 		
 	svgmap.selectAll('rect')
 		.data(data)
