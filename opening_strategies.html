@@ -1,10 +1,9 @@
 <!doctype html>
-
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Data visualisation - Assignment 1</title>
-  <link rel="stylesheet" href="/css/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/libraries/bootstrap/css/bootstrap.min.css">
 
   <style>
 
@@ -48,16 +47,13 @@
     	position: relative; 
     }
 
-
-
   </style>
 
   <!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-  <script src="/css/colorbrewer.js" charset="utf-8"></script>
+  <script src="/libraries/jquery.min.js" charset="utf-8"></script>
+  <script src="/libraries/d3.min.js" charset="utf-8"></script>
 </head>
 <body>
 
@@ -74,15 +70,7 @@
 			<div id="map_container">
 				<img id="map" src="map.jpg">
 			</div>
-		</div>
-		<!--
-		<div class="col-xs-6">
-			<div id="map_container2">
-				<img id="map" src="map.jpg">
-			</div>
-		</div>
-	-->
-		
+		</div>		
 		<div class="col-xs-6">
 			<div id="radio_column">
 				Show heat of team:
@@ -122,12 +110,7 @@
 			</div>
 		</div>
 	</div>
-	
-
-
 </div>	<!-- end container div -->
-
-
 
 </body>
 <script>
@@ -150,61 +133,12 @@
 				.attr("height",450)
 				.attr("width",450)
 				.style("position","absolute").style("top",0).style("left",0);
-/**
-				//draw initial svg
-	var svg2 = d3.select("#map_container2")
-				.append("svg")
-				.attr("height",450)
-				.attr("width",450)
-				.style("position","absolute").style("top",0).style("left",0);
-	var svg3 = d3.select("#map_container3")
-				.append("svg")
-				.attr("height",450)
-				.attr("width",450)
-				.style("position","absolute").style("top",0).style("left",0);
-	var svg4 = d3.select("#map_container4")
-				.append("svg")
-				.attr("height",450)
-				.attr("width",450)
-				.style("position","absolute").style("top",0).style("left",0);
 
-	var svg5 = d3.select("#map_container5")
-				.append("svg")
-				.attr("height",450)
-				.attr("width",450)
-				.style("position","absolute").style("top",0).style("left",0);
-
-	var svg6 = d3.select("#map_container6")
-				.append("svg")
-				.attr("height",450)
-				.attr("width",450)
-				.style("position","absolute").style("top",0).style("left",0);
-**/
 	var svg7 = d3.select("#chart_container")
 				.append("svg")
 				.attr("height",height)
 				.attr("width",width)
 				.style("position","absolute").style("top",0).style("left",0);
-/**
-	var svg8 = d3.select("#chart_container2")
-				.append("svg")
-				.attr("height",height)
-				.attr("width",width)
-				.style("position","absolute").style("top",0).style("left",0);
-
-	var svg9 = d3.select("#chart_container3")
-				.append("svg")
-				.attr("height",height)
-				.attr("width",width)
-				.style("position","absolute").style("top",0).style("left",0);
-
-	var svg10 = d3.select("#chart_container4")
-				.append("svg")
-				.attr("height",height)
-				.attr("width",width)
-				.style("position","absolute").style("top",0).style("left",0);
-**/
-
 	
 function plot(thing, name){
 		
@@ -224,11 +158,6 @@ function plot(thing, name){
     	var pixel = xScale(1);
 
     d3.csv(name,function(data){
-    	//console.log(d3.csv.parseRows(data));
-    	//console.log(data);
-    	
-		
-
 		thing.selectAll('rect')
 			.data(data)
 			.enter()
@@ -239,11 +168,7 @@ function plot(thing, name){
 			.attr("height", pixel)
 			.style("fill", function(d) { return colorScale(d.heat); })
 			.style("opacity", 0.5);
-
-
-		
-	});
-	
+	});	
 }
 
 function chart(thing, name){
@@ -263,8 +188,6 @@ function chart(thing, name){
     	//.ticks(10, "%");
 
     var colorScale = d3.scale.category20();
-
-
 
 	thing.append("g")
     	d3.csv(name, function(data){
@@ -325,16 +248,6 @@ function chart(thing, name){
 
 plot(svg, "/heatmaps/openings_heatmap.csv");
 chart(svg7, "/popularity/both.csv");
-//plot(svg2, "openings_heatmap2.csv");
-//plot(svg3, "openings_heatmap_radiant.csv");
-//plot(svg4, "openings_heatmap_radiant2.csv");
-//plot(svg5, "openings_heatmap_dire.csv");
-//plot(svg6, "openings_heatmap_dire2.csv");
-//chart(svg7, "/popularity/radiant1.csv");
-//chart(svg8, "/popularity/radiant2.csv");
-//chart(svg9, "/popularity/dire.csv");
-//chart(svg10, "/popularity/dire2.csv");
-
 
 function handler() {
     	//alert('clicked');
@@ -422,24 +335,26 @@ function handler() {
 	    			chart(svg7, "/popularity/dire_lose.csv");
 	    	}
     	}
-    	
-    	//console.log();
-
     }
 
-  function compare(a,b) {
-	  if (parseFloat(a.value) > parseFloat(b.value))
-	    return -1;
-	  if (parseFloat(a.value) < parseFloat(b.value))
-	    return 1;
-  return 0;
-}
-  function compareNames(a,b) {
-	  if (a.zone < b.zone)
-	    return -1;
-	  if (a.zone > b.zone)
-	    return 1;
-  return 0;
-}
+	function compare(a,b){
+	  	if (parseFloat(a.value) > parseFloat(b.value)){
+	    	return -1;
+		}
+	  	if (parseFloat(a.value) < parseFloat(b.value)){
+	    	return 1;
+	    }
+	  	return 0;
+	}
+
+	function compareNames(a,b){
+	  	if (a.zone < b.zone){
+	    	return -1;
+	    }
+	  	if (a.zone > b.zone){
+	    	return 1;
+	    }
+	  	return 0;
+	}
 </script>
 </html>

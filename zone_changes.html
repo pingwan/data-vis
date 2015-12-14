@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <title>Data visualisation - Assignment 1</title>
-  <link rel="stylesheet" href="/css/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/libraries/bootstrap/css/bootstrap.min.css">
 <style>
 
 body {
@@ -76,9 +76,8 @@ body {
 <!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-  <script src="/css/colorbrewer.js" charset="utf-8"></script>
+  <script src="/libraries/jquery.min.js" charset="utf-8"></script>
+  <script src="/libraries/d3.min.js" charset="utf-8"></script>
 </head>
 <body>
 
@@ -108,24 +107,7 @@ body {
 				other statistics here
 		</div>
 	</div>
-<div class="row">
-		<div class="col-xs-6">
-			<h1>Change of value each team has according to zones </h1>
-		</div>
-	</div>
-<!-- row for maps -->
-	<div class="row">
-		<div class="col-xs-6">
-			<div id="chart_container2">
-				
-			</div>
-		</div>
-		<div class="col-xs-6">
-			<div id="chart_legend">
-				
-			</div>
-		</div>
-	</div>
+
 	<div class="row">
 		<div class="col-xs-6">
 			<h1>Zone values shown on the map</h1>
@@ -145,7 +127,6 @@ body {
 		</div>
 	</div>
 	
-
 	<!-- row for legend and other statistics -->
 	<div class="row">
 		<div class="col-xs-6">
@@ -200,40 +181,6 @@ var svg = d3.select("#chart_container")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	//.style("position","absolute").style("top",0).style("left",0);
-
-var svg2 = d3.select("#chart_container2")
-	.append("svg")
-    .attr("width", 900 + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-var chart = svg2.append("g")
-				.attr("height",chartHeight)
-				.attr("width",chartWidth)
-				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-	var xAxis_group = chart.append("g")
-				.attr("class","axis")
-  				.attr("transform", "translate(0," + chartHeight + ")")
-
-  	var yAxis_group = chart.append("g")
-  				.attr("class","axis")
-
- // xAxis label
-	chart.append("text") 
-		.attr("transform", "translate(" + ((width / 2)-margin.left) + " ," + (height - margin.bottom) +")")
-		.style("text-anchor", "middle")
-		.text("tsync");
-
-	//yAxis label
-	chart.append("text")
-			.attr("transform", "rotate(-90)")
-			.attr("y", 0 - margin.left)
-			.attr("x", 0 - ((height / 2) - margin.top))
-			.attr("dy", "1em")
-			.style("text-anchor", "middle")
-			.text("Value");
 	
 var originalData;
 //Read available matches
@@ -307,28 +254,12 @@ function createMatchTable(data){
 	   	if(i == 2){
 	   				
 	   			//d3.selectAll('.axis').remove()
-	   			var file_name = "/matches/" + d[0] + ".csv"
+	   			var file_name = "/master-zones/" + d[0] + ".csv"
 				d3.csv(file_name,parseDate,function(error,data){
 					svg.selectAll("*").remove();
 					//document.getElementById("stuff").innerHTML = "";
 					originalData = data;
 					chartZoneChanges(originalData);
-				});	
-				var value_filename = "matches_value/" + d[0] + ".csv"
-				d3.csv(value_filename,function(data){
-					//d3.select("#chart_container2")
-						//.selectAll("rect").remove();
-					//d3.selectAll('.axis').remove();
-					//d3.selectAll(".legend").remove();
-					//document.getElementById("stuff").innerHTML = "";
-					d3.select("#chart_container2")
-						//.selectAll("rect").remove()
-						//.selectAll('.axis').remove()
-						.selectAll('.path').remove()
-						.selectAll(".legend").remove();
-					originalData = data;
-					console.log(value_filename);
-					chartValues(originalData);
 				});	
 	   	}
 	   });
