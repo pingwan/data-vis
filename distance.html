@@ -122,6 +122,7 @@
 </body>
 <script>
 
+	var available_matches; 
 	var currentMatchId;
 	var winningTeam;
 	var margin = {
@@ -176,6 +177,7 @@
 	var y = d3.scale.linear().range([chartHeight, 0]);
 
 	var colorScale = d3.scale.category10();
+	var winnerLoserScale = d3.scale.category10();
 
 	function plot(data){
 
@@ -255,29 +257,35 @@
    		xAxis_group.transition().call(xAxis);
    		yAxis_group.transition().call(yAxis);
 
-   		updateLegend();
+   		updateLegend(colorScale);
 
 	}
 
-	function updateLegend(){
-	    
+	function updateLegend(scale){
+
+		d3.select(".legend-labels").selectAll("li").remove();
+
 	    var li = d3.select(".legend-labels").selectAll("li")
-	    	.data(colorScale.domain()).enter()
+	    	.data(scale.domain()).enter()
 	    		.append("li")
 	    		.classed("legend_li",true);
 
 	    li.html(function(d,i){
+	    	console.log(d);
 	    	return d;
 	    });
 
 	    li.append("span")
 	    		.style("background",function(d,i){
-	    			return colorScale.range()[i];
+	    			return scale.range()[i];
 	    		});
 	    d3.select("#match_id_span").html(currentMatchId);
 	    d3.select("#winning_team_span").html(winningTeam);
-	    
-	    
+
+	    if(scale == winnerLoserScale){
+	    	$("#match_id_span").empty();
+	    	$("#winning_team_span").empty();
+	    }   
 	}
 
 	function parseDate(d){
@@ -301,6 +309,7 @@
 	//Read available matches
 	d3.csv("preprocessing/available_matches.csv",function(data){
 
+		available_matches = data;
 		createSelect(data);
 		currentMatchId = data[0].match;
 		readMatchFile(data[0].match); //read the first match
@@ -327,21 +336,95 @@
 						
 					})
 
-		/*var button = d3.select('#matches_container')
+		var button = d3.select('#matches_container')
 						.append("button")
 						.classed("btn",true)
 						.classed("btn-success",true)
 						.style("margin-top","10px")
-						.html("Aggregate")
+						.html("View average win vs lose")
 						.on("click",function(){
-							//do something
-						});*/
+							d3.csv("preprocessing/master_distance/aggregate.csv",function(d){
+									d.tsync = parseInt(d.tsync);
+									d.DD = parseFloat(d.DD);
+									return d;
+								},
+								function(error,data){
+
+									var nest = d3.nest()
+							    			.key(function(d) { return d.type; })
+							    			.sortKeys(d3.ascending)
+							    			.entries(data);
+
+							    	var losers = nest[0].values;
+							    	var winners = nest[1].values;
+									
+									x.domain([0,d3.max(data,function(d){
+										return d.tsync;
+									})]);
+
+									y.domain([0,d3.max(data,function(d){
+												return d.DD;	
+											})])
+
+							    	var xAxis = d3.svg.axis()
+							    			.scale(x)
+							    			.orient("bottom");
+
+							    	var yAxis = d3.svg.axis()
+							    			.scale(y)
+							    			.orient("left");
+
+							    	var line = d3.svg.line()
+												.x(function(d){
+													return x(d.tsync);
+												})
+												.y(function(d){
+													return y(d.DD);
+												})
+
+							    	var trendLine1 = chart.selectAll(".trendline1").data([winners]);
+
+							    	//enter
+							    	trendLine1.enter().append("path").classed("trendline1",true);
+
+							    	//update
+							    	trendLine1.transition().duration(1000).ease("linear")
+												.attr("d",function(d){
+							    					return line(d);
+							    				}).style("stroke",function(d){
+							    					return winnerLoserScale(d[0].type);
+							    				});
+
+							    	var trendLine2 = chart.selectAll(".trendline2").data([losers]);
+
+							    	//enter
+							    	trendLine2.enter().append("path").classed("trendline2",true);
+							 
+							    	//update
+							    	trendLine2.transition().duration(1000).ease("linear")
+												.attr("d",function(d){
+										    		return line(d);
+										    	}).style("stroke",function(d){
+										    		return winnerLoserScale(d[0].type);
+										    	});
+
+							    	//exit
+							    	trendLine1.exit().remove();
+							    	trendLine2.exit().remove();
+							    	
+							    	//update axis
+							   		xAxis_group.transition().call(xAxis);
+							   		yAxis_group.transition().call(yAxis);
+																		
+									updateLegend(winnerLoserScale);
+							});	
+						});
 	}
 
 	function readMatchFile(matchID){
-
-		var file_name = "preprocessing/master-distance/" + matchID + ".csv";
+		var file_name = "preprocessing/master_distance/" + matchID + ".csv";
 		d3.csv(file_name,parseDate,function(error,data){
+			console.log(data);
 			plot(data);
 		});	
 	}

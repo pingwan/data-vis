@@ -143,7 +143,7 @@
 		</div>
 
 		<div class="col-xs-6">
-			other statistics here
+
 		</div>
 	</div>
 </div>	<!-- end container div -->
@@ -194,6 +194,22 @@
     		
     	})
 
+    	var winning_team;
+
+    	if(players[0]["team"] == "radiant"){
+    		if(players[0]["won"] == 1){
+    			winning_team = "radiant";
+    		}else{
+    			winning_team = "dire";
+    		}
+    	}else{
+    		if(players[0]["won"] == 1){
+    			winning_team = "dire";
+    		}else{
+    			winning_team = "radiant";
+    		}
+    	}
+
 		var xScale = d3.scale.linear()
 					.domain([0,d3.max(data,function(d){return d.x;})])
 					.range([0,450]);
@@ -214,7 +230,7 @@
     				}))
     				.range(['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd']);
 
-		d3.select(".legend-labels").append("div").classed("legend-title",true).html("Legend");
+		d3.select(".legend-labels").append("div").classed("legend-title",true).html("Winner: " + winning_team + "</br>" + "Legend");
 	    var li = d3.select(".legend-labels").selectAll("li")
 	    	.data(colorScale.domain()).enter()
 	    		.append("li")
