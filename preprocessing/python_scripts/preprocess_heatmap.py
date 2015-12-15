@@ -54,7 +54,7 @@ def preprocess(t, fre, filename, win):
                                 openingData[x][y] =openingData[x][y] + 1
                             else:
                                 openingData[x][y] = 1
-					elif won == 0 & win == 0:
+                    elif won == 0 & win == 0:
                         if team == t:
                             if fre == 1:
                                 openingData[x][y] =openingData[x][y] + 1
@@ -65,7 +65,7 @@ def preprocess(t, fre, filename, win):
                                 openingData[x][y] =openingData[x][y] + 1
                             else:
                                 openingData[x][y] = 1
-					elif win == 2:
+                    elif win == 2:
                         if team == t:
                             if fre == 1:
                                 openingData[x][y] =openingData[x][y] + 1
@@ -82,7 +82,7 @@ def preprocess(t, fre, filename, win):
 
 
     data = data / numpy.max(data)
-    print numpy.max(data)
+
     size = 0
     for x in range(0, 125):
         for y in range(0, 125):

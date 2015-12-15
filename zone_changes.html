@@ -112,15 +112,30 @@ body {
 					<img id="map" src="map.jpg">
 				</div>
 			</div>
+
+			<div class="col-xs-6">
+				<div id="legend_container">
+
+				</div>
+			</div>
 		</div>
 
 		<!-- row for legend and other statistics -->
-		<div class="row">
-			<div class="col-xs-6">
-				xxx
+		<div class="row" id="click_map">
+			<h2>Click on the map to see the section label</h2>
+		</div>
+		<div class="row" >
+			<div class="col-xs-6" id="change_stats">
+				Number of changes between zones:
 			</div>
-			<div class="col-xs-6">
-				xxx
+			<div class="col-xs-6" id="buttons">
+				
+				See zone changes for:<br>
+				<input type="radio" name="team"  onClick="fillList(changes_radiant)">Radiant<br>
+				<input type="radio" name="team"  onClick="fillList(changes_dire)">Dire<br>
+				<input type="radio" name="team"  onClick="fillList(changes)" checked="true" id="radio_default">Both<br>
+				<button type="button"onClick="markZones('all', 0)">Reset Map</button><br>
+
 			</div>
 		</div>
 	</div>
@@ -166,7 +181,20 @@ var svg = d3.select("#chart_container")
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-	
+
+var changes_list = d3.select("#change_stats")
+	.append("select")
+	.classed("form-control",true)
+	.attr("multiple","");
+
+var colorScale =  d3.scale.category20();
+
+var changes = [];
+var changes_radiant = [];
+var changes_dire = [];
+
+var map_drawn = true;
+
 var originalData;
 //Read available matches
 	d3.csv("preprocessing/available_matches.csv",function(data){
@@ -243,6 +271,11 @@ function createMatchTable(data){
 	   }).on("click",function(d,i){
 	   	if(i == 2){
 	   			var file_name = "preprocessing/master_zones/" + d[0] + ".csv"
+	   			if(!map_drawn){
+	   				markZones("all", 0);
+	   				map_drawn = true;
+	   			}	
+	   			document.getElementById('radio_default').checked = true;
 				d3.csv(file_name,parseDate,function(error,data){
 					svg.selectAll("*").remove();
 					originalData = data;
@@ -258,12 +291,13 @@ function chartZoneChanges(data){
   var dire = [0,0,0,0];
   var player = "";
   var maxTime = 0;
-  
+  changes = [];
+  changes_radiant = [];
+  changes_dire = [];
   if(data[0].winner = "1" && data[0].team == "radiant"){
   	winner = data[0].team;
   } else{ winner = "dire";}
   document.getElementById("stuff").innerHTML = "The winner of match " + data[0].match + " was team " + winner + "!";
-  console.log(winner);
   var winner = "";
 	var team = "";
 	for (i = 0; i < data.length; i++) {
@@ -281,12 +315,15 @@ function chartZoneChanges(data){
   var zone = "";
   var player = "";
   
+  //iterate through the match data
   for (i = 0; i < data.length; i++) {
 		if(player == ""){
 			player = data[i].player;
 			zone = data[i].zone;
 		}
+		//if this entry is from the same player as the last entry
 		if(player == data[i].player){
+			//check team if and the zone from this entry is the same as the last entry, then add to the zone changes data
 			if(data[i].team == 'radiant' && zone != data[i].zone){
 				var time = +data[i].tsync;
 				if(time < quarterTime){
@@ -317,24 +354,69 @@ function chartZoneChanges(data){
 					dire[3]++;
 				}
 			}
+			//here the changes between specific zones are tracked
+			//zone changes for both teams
+			if(zone != data[i].zone){
+				if(zone < data[i].zone){
+					if(isNaN(changes[zone + "," + data[i].zone])){
+						changes[zone + "," + data[i].zone] = 0;
+					}
+					changes[zone + "," + data[i].zone] = changes[zone + "," + data[i].zone] + 1;
+				}
+				else{
+					if(isNaN(changes[data[i].zone + "," + zone])){
+						changes[data[i].zone + "," + zone] = 0;
+					}
+					changes[data[i].zone + "," + zone] = changes[data[i].zone + "," + zone] + 1;
+				}
+			}
+			//zone changes for radiant
+			if(zone != data[i].zone && data[i].team == 'radiant'){
+				if(zone < data[i].zone){
+					if(isNaN(changes_radiant[zone + "," + data[i].zone])){
+						changes_radiant[zone + "," + data[i].zone] = 0;
+					}
+					changes_radiant[zone + "," + data[i].zone] = changes_radiant[zone + "," + data[i].zone] + 1;
+				}
+				else{
+					if(isNaN(changes_radiant[data[i].zone + "," + zone])){
+						changes_radiant[data[i].zone + "," + zone] = 0;
+					}
+					changes_radiant[data[i].zone + "," + zone] = changes_radiant[data[i].zone + "," + zone] + 1;
+				}
+			}
+			//zone changes for dire
+			if(zone != data[i].zone && data[i].team == 'dire'){
+				if(zone < data[i].zone){
+					if(isNaN(changes_dire[zone + "," + data[i].zone])){
+						changes_dire[zone + "," + data[i].zone] = 0;
+					}
+					changes_dire[zone + "," + data[i].zone] = changes_dire[zone + "," + data[i].zone] + 1;
+				}
+				else{
+					if(isNaN(changes[data[i].zone + "," + zone])){
+						changes_dire[data[i].zone + "," + zone] = 0;
+					}
+					changes_dire[data[i].zone + "," + zone] = changes_dire[data[i].zone + "," + zone] + 1;
+				}
+			}
 		}
 		zone = data[i].zone;
 		player = data[i].player;
 	}
-
+  fillList(changes);
   var stage = ['q1', 'q2', 'q3', 'q4'];
   
-  var stuff2 = [{stage:'q1', radiant:radiant[0], dire:dire[0]},
+  var stage_info = [{stage:'q1', radiant:radiant[0], dire:dire[0]},
 				{stage:'q2', radiant:radiant[1], dire:dire[1]},
 				{stage:'q3', radiant:radiant[2], dire:dire[2]},
 				{stage:'q4', radiant:radiant[3], dire:dire[3]}
   ];
   
-  var bla = d3.keys(stuff2[0]).filter(function(key) { return (key !== "stage"); });
-
+  var key_map = d3.keys(stage_info[0]).filter(function(key) { return (key !== "stage"); });
   
-  stuff2.forEach(function(d) {
-    d.ages = bla.map(function(name) { return {name: name, value: +d[name]}; });
+  stage_info.forEach(function(d) {
+    d.changes = key_map.map(function(name) { return {name: name, value: +d[name]}; });
   });
 
   x0.domain(stage);
@@ -358,13 +440,13 @@ function chartZoneChanges(data){
       .text("Zone Changes");
 	  
 	  var stages = svg.selectAll(".state")
-      .data(stuff2)
+      .data(stage_info)
       .enter().append("g")
       .attr("class", "g")
       .attr("transform", function(d) { return "translate(" + x0(d.stage) + ",0)"; });
 	  
 	stages.selectAll(".bar")
-      .data(function(d) { return d.ages; })
+      .data(function(d) { return d.changes; })
       .enter().append("rect")
 
       .attr("width", x1.rangeBand())
@@ -374,7 +456,7 @@ function chartZoneChanges(data){
       .style("fill", function(d) { return color(d.name); });
 	  
 	  var legend = svg.selectAll(".legend")
-      .data(bla.slice().reverse())
+      .data(key_map.slice().reverse())
     .enter().append("g")
       .attr("class", "legend")
       .attr("transform", function(d, i) { return "translate("+ 50 +"," + i * 20 + ")"; });
@@ -393,7 +475,15 @@ function chartZoneChanges(data){
       .text(function(d) { return d; });
 }
 
-function markZones(){
+//mark the zones on the map
+function markZones(zone, init){
+	if(init != 1){
+		var svgmap = d3.select("#map_container");
+		svgmap.selectAll("rect").remove();
+	}
+	if(zone != "all"){
+		map_drawn = false;
+	}
 	var xScale = d3.scale.linear()
 				.domain([0,123])
 				.range([0,450]);
@@ -401,8 +491,6 @@ function markZones(){
 	var yScale = d3.scale.linear()
 				.domain([0,123])
 				.range([450,0]);
-
-	var colorScale =  d3.scale.category20();
 
 	var pixel = xScale(1);
 
@@ -412,22 +500,98 @@ function markZones(){
 			.attr("width",450)
 			.style("position","absolute").style("top",0).style("left",0);
 
+	var legend_thing = d3.select("#legend_container")
+			.append("svg")
+			.attr("height",450)
+			.attr("width",450)
+			.style("position","absolute").style("top",0).style("left",0);
+
 	d3.csv("preprocessing/original_data/DotaLabels.csv",function(data){
 		
-	svgmap.selectAll('rect')
-		.data(data)
-		.enter()
-		.append('rect')
-		.attr("x", function(d) { return xScale(d.x); })
-        .attr("y", function(d) { return yScale(d.y); })
-		.attr("width", pixel)
-		.attr("height", pixel)
-		.style("fill", function(d) { return colorScale(d.value); });
+		svgmap.selectAll('rect')
+			.data(data)
+			.enter()
+			.append('rect')
+			.attr("x", function(d) { return xScale(d.x); })
+	        .attr("y", function(d) { return yScale(d.y); })
+			.attr("width", pixel)
+			.attr("height", pixel)
+			.on("click", function(d) {
+				document.getElementById("click_map").innerHTML = "<h2>"+ d["Section Label "] + "</h2>";
+				})
+
+			.style("fill", function(d) {return colorScale(d.value);})
+			.style("opacity", function(d) {
+				var zones = zone.split(",")
+				if(zone == "all"){
+					return 1; 
+				}
+				else if(d["Section Label "] == zones[0] || d["Section Label "] == zones[1]){
+					return 1;
+				}
+				else{
+					return 0;
+				}
+			});
+
+		if(init){
+			var zones = ["base1 radiant", "base2 dire", "bottomlane dire", "bottomlane radiant", "jungle dire", "jungle radiant", "laneshop dire", "laneshop radiant", "midlane dire", "midlane radiant", "pit dire", "river", "secretshop dire", "secretshop radiant", "toplane dire", "toplane radiant", "void dire", "void radiant"]
+			
+			var legend = legend_thing.selectAll("g")
+		      .data(colorScale.domain())
+		      .enter().append("g")
+		      .attr("transform", function(d, i) { return "translate("+ 50 +"," + i * 20 + ")"; });
+
+			legend.append("rect")
+		      .attr("width", 18)
+		      .attr("height", 18)
+		      .style("fill", colorScale);
+
+		  	legend.append("text")
+		      .attr("x", 20)
+		      .attr("y", 10)
+		      .attr("dy", ".35em")
+		      .style("text-anchor", "front")
+		      .text(function(d) { return zones[d-1]; });
+		  }
 	});
 }
 
-markZones();
+//fill the select list with the data
+function createSelect(select, data){
+		select.selectAll("*").remove();
 
+		select.selectAll("option")
+			.data(data)
+			.enter()
+			.append("option")
+			.html(function(d){
+				return "Zones: " + d.areas + " : " + d.value;
+			})
+			.on("click",function(d){
+				markZones(d.areas, 0);
+			})
+	}
+
+//convert the data first, then fill the list
+function fillList(collection){
+	var changes_string = "";
+	var result = [];
+	for(var index in collection) {
+  		var item = {areas:index, value:collection[index]};
+  		result.push(item);
+	}
+	result.sort(function(a,b) {
+    	return b.value - a.value;
+	});
+
+	for (var i = 0; i < result.length; i++) {
+		changes_string = changes_string +  result[i].areas + " : " + result[i].value + "<br>";
+	};
+	createSelect(changes_list, result);
+}
+
+markZones("all", 1);
 
 
 </script>
