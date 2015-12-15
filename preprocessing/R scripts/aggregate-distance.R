@@ -1,4 +1,4 @@
-setwd("/Users/Ping/Desktop/data-visualisation/preprocessing/master_distance")
+setwd("/Users/Ping/Desktop/data-visualisation/preprocessing/master_distance") #Change this to the correct directory!
 install.packages("data.table")
 library(data.table)
 temp = list.files(pattern="*.csv")
