@@ -8,8 +8,10 @@
 
     <link rel="stylesheet" href="/libraries/bootstrap/css/bootstrap.min.css"> 
     <link rel="stylesheet" href="/libraries/bootstrap/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="/libraries/d3.slider.css" media="screen" />
     <script src="/libraries/d3.min.js" charset="utf-8"></script>
     <script src="/libraries/jquery.min.js" charset="utf-8"></script>
+    <script src="/libraries/d3.slider.js" charset="utf-8"></script>
     <!--[if lt IE 9]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -48,7 +50,7 @@
                 </div>
             </div>
             <div class="col-xs-12">
-                <div id="graph_container" style="background-color:blue; height:50px;"></div>
+                <div id="slider_container" ></div>
             </div>
         </div>
 
@@ -96,7 +98,18 @@
     var div = d3.select("body").append("div")   
                 .attr("class", "tooltip")               
                 .style("opacity", 0);
+
+    var slider = d3.slider().min(1960).max(2011).value(1960).step(1).axis(d3.svg.axis().orient("top").tickFormat(d3.format("d")));
+
+    slider.on("slide", function(){
+        current_year = slider.value();
+        //d3.select("#year").html("<h2>" + current_year +"</h2>");
+        updateMap();
+    });
+
+    var slider_actual = d3.select("#slider_container").call(slider);
         
+
 
     function drawMap(data){
                 
