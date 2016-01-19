@@ -10,6 +10,10 @@
     <link rel="stylesheet" href="/libraries/bootstrap/css/bootstrap-theme.min.css">
     <link rel="stylesheet" type="text/css" href="/libraries/d3.slider.css" media="screen" />
     <script src="/libraries/d3.min.js" charset="utf-8"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/1.7.0/d3-legend.js" charset="utf-8"></script>
+
+
     <script src="/libraries/jquery.min.js" charset="utf-8"></script>
     <script src="/libraries/d3.slider.js" charset="utf-8"></script>
     <!--[if lt IE 9]>
@@ -19,11 +23,11 @@
 
     <style>
         .container{
-            width: 970px !important;
+            width: 1100px !important;
         }
 
         #countries_container{
-            height:450px;
+            height:1000px;
             overflow: scroll;
         }
 
@@ -45,7 +49,6 @@
             shape-rendering: crispEdges;
         }
 
-
         div.tooltip {   
           position: absolute;           
           text-align: center;                           
@@ -62,49 +65,66 @@
 
     <div class="container">
 
-        <div class="row">
-            <div class="col-xs-12">
+        <div class="row" style="margin-bottom:px;">
+            <div class="col-xs-12" >
                 <div id="year" style=" text-align: center;:center;">
                 </div>
             </div>
+        </div>
+
+        <div class="row" style="margin-bottom:45px;">
             <div class="col-xs-12">
-                <div id="slider_container" ></div>
+                <div id="slider_container"></div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-xs-9">
-                <div id="map_container">
+                <div class="row">
+                    <div class="col-xs-12">
+                       
+                            <span>
+                                <label>Dataset 1</label>
+                                <select>
+                                    <option value="emission">Emission</option>
+                                    <option value="population">Population</option>
+                                </select>
+                            </span>
+                            <span class="pull-right">
+                                <label>Dataset 2</label>
+                                <select>
+                                    <option value="emission">Emission</option>
+                                    <option value="population">Population</option>
+                                </select>
+                            </span>
+                       
+                    </div>
+                    <div class="col-xs-12">
+                        <div id="map_container"></div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div id="color_legend"></div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div id="graph_container"></div>
+                    </div>
                 </div>
-
             </div>
-            <div class="col-xs-3" id="list">
-                <div id="countries_container">
-                </div>
+            <div class="col-xs-3">
+                <div id="countries_container"></div>
             </div>
-        </div>
-
-            <div class="row">
-            <div class="col-xs-12">
-                <div id="graph_container" ></div>
-            </div>
-        </div>
-
 
         </div>
 
-        
-    </div>
-        
-    </div>
     
+    </div>
 
 <script>
     
     var available_countries;
     var emission_data;
     var current_year = 1960;
-    var width = 697,
+    var width = 800,
         height = 450;
     var svg;
     var map;
@@ -128,12 +148,13 @@
                 .attr("class", "tooltip")               
                 .style("opacity", 0);
 
-    var slider = d3.slider().min(1960).max(2011).value(1960).step(1).axis(d3.svg.axis().orient("top").tickFormat(d3.format("d")));
+    var slider = d3.slider().min(1960).max(2011).value(1960).step(1).axis(d3.svg.axis().orient("bottom").tickFormat(d3.format("d")));
 
     slider.on("slide", function(){
         current_year = slider.value();
         //d3.select("#year").html("<h2>" + current_year +"</h2>");
         updateMap();
+        createLegend();
     });
 
     var slider_actual = d3.select("#slider_container").call(slider);
@@ -219,6 +240,7 @@
             },200)*/
 
             updateMap();
+            createLegend();
             
             
         })
@@ -261,9 +283,7 @@
         colorScale = d3.scale.linear()
                         .range(['#fffc57', '#e80000'])
                         .domain(d3.extent(d3.values(nested).map(function(d){return d["Emission"]})));
-        
-   
-        
+
         svg.selectAll("path")
                     .style("fill",function(d){
                         if(nested[d.id]){
@@ -576,6 +596,29 @@
        td_text = td.html(function(d,i){
             return d;       
        })
+    }
+
+    function createLegend(){
+
+        $("#color_legend").empty();
+        var svg_legend = d3.select("#color_legend")
+                            .append("svg")
+                            .attr("width",700)
+                            .style("display","block")
+                            .style("margin","auto");
+
+        svg_legend.append("g")
+          .attr("class", "legendLinear")
+          .attr("transform", "translate(20,20)");
+
+        var legendLinear = d3.legend.color()
+          .shapeWidth(120)
+          .cells(5)
+          .orient('horizontal')
+          .scale(colorScale)
+
+        svg_legend.select(".legendLinear")
+          .call(legendLinear);
     }
 
 
