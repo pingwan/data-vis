@@ -32,7 +32,7 @@
         }
 
         #graph_container{
-            width: 697px; 
+            width: 597px; 
             height: 450px;
             padding: 0;
             position: relative; 
@@ -47,6 +47,12 @@
             fill: none;
             stroke: #777;
             shape-rendering: crispEdges;
+        }
+
+        path { 
+            stroke: steelblue;
+            stroke-width: 2;
+            fill: none;
         }
 
         div.tooltip {   
@@ -106,7 +112,7 @@
                         <div id="color_legend"></div>
                     </div>
                     <div class="col-xs-12">
-                        <div id="graph_container"></div>
+                        <div id="graph_container" transform="translate(100,0)"></div>
                     </div>
                 </div>
             </div>
@@ -142,7 +148,9 @@
     var chartHeight = height - margin.top - margin.bottom; 
 
     var x = d3.scale.linear().range([0, chartWidth]);
+    x.domain([1960,2011]);
     var y = d3.scale.linear().range([chartHeight, 0]);
+    y.domain([0,10000000]);
 
     var div = d3.select("body").append("div")   
                 .attr("class", "tooltip")               
@@ -168,27 +176,70 @@
 
     var xAxis_group = graph.append("g")
                 .attr("class","axis")
-                .attr("transform", "translate(0," + chartHeight + ")")
+                .attr("transform", "translate(100," + (chartHeight+10) + ")")
 
     var yAxis_group = graph.append("g")
                 .attr("class","axis")
+                .attr("transform", "translate(100," + 10 + ")")
 
     // xAxis label
     graph.append("text") 
-        .attr("transform", "translate(" + ((width / 2)-margin.left) + " ," + (height - margin.bottom) +")")
+        .attr("transform", "translate(" + ((width / 2)-margin.left + 100) + " ," + (height - margin.bottom + 10) +")")
         .style("text-anchor", "middle")
         .text("Year");
 
     //yAxis label
     graph.append("text")
-            .attr("transform", "rotate(-90)")
+            .attr("transform", "rotate(-90) translate(10,50)")
             .attr("y", 0 - margin.left)
             .attr("x", 0 - ((height / 2) - margin.top))
             .attr("dy", "1em")
             .style("text-anchor", "middle")
             .text("Emissions");
 
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .tickFormat(d3.format("d"))
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .tickFormat(d3.format("d"))
+        .orient("left");
+
+    //update axis
+    xAxis_group.transition().call(xAxis);
+    yAxis_group.transition().call(yAxis);
+
     
+
+    function drawGraph(){
+        
+        for (var i = 0; i < emission_data.length; i++) {
+            var country = emission_data[i];
+            var data = [];
+            for (var j = 1960; j < 2012; j++) {
+                var entry = {};
+                entry.date = j;
+                entry.emission = country[j];
+                data.push(entry);
+            };
+
+            var line = d3.svg.line()
+                .x(function(d){
+                    return x(d.date);
+                })
+                .y(function(d){
+                    return y(d.emission);
+                })
+
+            // Add the valueline path.
+            graph.append("path")
+                .attr("class", "line")
+                .attr("d", line(data))
+                .attr("transform", "translate(100,10)");
+        };
+    }
 
     function drawMap(data){
                 
@@ -241,7 +292,7 @@
 
             updateMap();
             createLegend();
-            
+            drawGraph();
             
         })
 
@@ -305,58 +356,9 @@
                         .style("left", (d3.event.pageX) + "px")     
                         .style("top", (d3.event.pageY - 28) + "px");
 
-                        //console.log(nested[d.id]["Index"]);
-                        var data = [];
-                        for (var i = 1960; i < 2012; i++) {
-                            var entry = {};
-                            entry.date = i;
-                            entry.emission = parseFloat(emission_data[nested[d.id]["Index"]][i]);
-                            data.push(entry);
-                        };
-                        console.log(data);
-                        //console.log(emission_data);
-                        //GRAPH STUFF HERE?
-                        x.domain([1960,2011]);
-                        y.domain([0, d3.max(data,function(d){
-                            return d.emission;    
-                        })]);
+                        drawLine(nested[d.id]["Index"]);
+
                         
-
-                        var xAxis = d3.svg.axis()
-                            .scale(x)
-                            .orient("bottom");
-
-                        var yAxis = d3.svg.axis()
-                            .scale(y)
-                            .orient("left");
-
-                        var line = d3.svg.line()
-                            .x(function(d){
-                                return x(d.date);
-                            })
-                            .y(function(d){
-                                return y(d.emission);
-                            })
-
-                        var trendLine = graph.selectAll(".trendline").data([data]);
-
-                        //enter
-                        trendLine.enter().append("path").classed("trendline",true);
-
-                        //update
-                        trendLine.transition().duration(1000).ease("linear")
-                        .attr("d",function(d){
-                            return line(d);
-                        }).style("stroke",function(d){
-                            return "red";
-                        });
-                        
-                        //exit
-                        trendLine.exit().remove();
-
-                        //update axis
-                        xAxis_group.transition().call(xAxis);
-                        yAxis_group.transition().call(yAxis);
             
                     }).on("mouseout",function(d,i){
                            
@@ -576,6 +578,7 @@
                     .append('tr')
                     .on("mouseover",function(d,i){
                         highlightCountry(d);
+                        drawLine(i);
                     })
                     .on("mouseout",function(d,i){
                         updateMap();
@@ -619,6 +622,40 @@
 
         svg_legend.select(".legendLinear")
           .call(legendLinear);
+    }
+
+    function drawLine(index){
+        var data = [];
+        for (var i = 1960; i < 2012; i++) {
+            var entry = {};
+            entry.date = i;
+            entry.emission = parseFloat(emission_data[index][i]);
+            data.push(entry);
+        };
+
+        var line = d3.svg.line()
+            .x(function(d){
+                return x(d.date);
+            })
+            .y(function(d){
+                return y(d.emission);
+            })
+
+        var trendLine = graph.selectAll(".trendline").data([data]);
+
+        //enter
+        trendLine.enter().append("path").classed("trendline",true).attr("transform", "translate(100,10)");
+
+        //update
+        trendLine.transition().duration(1000).ease("linear")
+        .attr("d",function(d){
+            return line(d);
+        }).style("stroke",function(d){
+            return "red";
+        });
+        
+        //exit
+        trendLine.exit().remove();
     }
 
 
