@@ -49,6 +49,10 @@
           fill: none;
           stroke-width: 1.5px;
         }
+        .timeline {
+          fill: none;
+          stroke-width: 1.5px;
+        }
 
         .axis path {
             fill: none;
@@ -201,6 +205,7 @@
         createLegend();
         changebubble();
         slider2.value(slider.value());
+        drawTimeLine();
     });
 
     slider2.on("slide", function(){
@@ -210,6 +215,7 @@
         createLegend();
         changebubble(); 
         slider.value(slider2.value());
+        drawTimeLine();
     });
 
     var slider_actual = d3.select("#slider_container").call(slider);
@@ -264,14 +270,24 @@
             format = d3.format(",d");
 
     var bubble = d3.layout.pack()
-        .sort(null)
-        .size([diameter, diameter])
+        .sort(function(a, b){
+            return b.value - a.value;
+        })
+        .size([900, 400])
         .padding(10);
 
     var bubbleSvg = d3.select("#bubble_container").append("svg")
-        .attr("width", diameter)
-        .attr("height", diameter)
+        .attr("width", 900)
+        .attr("height", 400)
         .attr("class", "bubble");
+
+    var line = graph.append("line")
+        .attr("x1", x(current_year))
+        .attr("y1", y(0))
+        .attr("x2", x(current_year))
+        .attr("y2", y(10000000))
+        .attr("transform", "translate(100,10)")
+        .style("stroke", "green");
 
     
 
@@ -356,6 +372,7 @@
             createLegend();
             drawGraph();
             drawBubbles();
+            drawTimeLine();
         })
 
 
@@ -834,6 +851,14 @@ function changebubble() {
 
     }
 
+    function drawTimeLine(){
+        line.transition().duration(1000).ease("linear")
+            .attr("x1", x(current_year))
+            .attr("y1", y(0))
+            .attr("x2", x(current_year))
+            .attr("y2", y(10000000))
+            .attr("transform", "translate(100,10)");
+    }
 
 
 
