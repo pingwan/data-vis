@@ -39,8 +39,8 @@
         }
 
         #bubble_container{
-            width: 597px; 
-            height: 450px;
+            width: 600px; 
+            height: 600px;
             padding: 0;
             position: relative; 
         }
@@ -129,6 +129,26 @@
 
         </div>
 
+        <div class="row" style="margin-bottom:px;">
+            <div class="col-xs-12" >
+                <div id="year" style=" text-align: center;:center;">
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-bottom:px;">
+            <div class="col-xs-12" >
+                <div id="year2" style=" text-align: center;:center;">
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-bottom:45px;">
+            <div class="col-xs-12">
+                <div id="slider_container2"></div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-xs-12">
                 <div id="bubble_container"></div>
@@ -170,16 +190,31 @@
                 .style("opacity", 0);
 
     var slider = d3.slider().min(1960).max(2011).value(1960).step(1).axis(d3.svg.axis().orient("bottom").tickFormat(d3.format("d")));
+    var slider2 = d3.slider().min(1960).max(2011).value(1960).step(1).axis(d3.svg.axis().orient("bottom").tickFormat(d3.format("d")));
+
+    d3.select("#year2").html("<h2>" + 1960 +"</h2>");
 
     slider.on("slide", function(){
         current_year = slider.value();
-        //d3.select("#year").html("<h2>" + current_year +"</h2>");
+        d3.select("#year2").html("<h2>" + current_year +"</h2>");
         updateMap();
         createLegend();
         changebubble();
+        slider2.value(slider.value());
+    });
+
+    slider2.on("slide", function(){
+        current_year = slider2.value();
+        d3.select("#year2").html("<h2>" + current_year +"</h2>");
+        updateMap();
+        createLegend();
+        changebubble(); 
+        slider.value(slider2.value());
     });
 
     var slider_actual = d3.select("#slider_container").call(slider);
+
+    var slider_actual2 = d3.select("#slider_container2").call(slider2);
         
     var graph = d3.select("#graph_container")
         .append("svg")
@@ -304,7 +339,7 @@
             
             
             emission_data = d;
-            console.log(emission_data);
+            //console.log(emission_data);
             emission_data =  emission_data.filter(function(d){
                 return (available_countries.indexOf(d['Country Code']) !== -1);
             })
@@ -687,8 +722,13 @@
 
     function drawBubbles(){
 
+        emission_data.forEach(function(d, i){
+            d.index = i;
+        });
+
         var testData = {"children": emission_data}
-        console.log(classes(emission_data));
+        //console.log(emission_data);
+        
 
         var node = bubbleSvg.selectAll(".node")
             .data(bubble.nodes(classes(testData))
@@ -712,10 +752,14 @@
         })
             .style("fill", "blue");
 
-            node.append("text")
-              .attr("dy", ".3em")
-              .style("text-anchor", "middle")
-              .text(function(d) { return d.className.substring(0, d.r / 3); });
+        node.append("text")
+          .attr("dy", ".3em")
+          .style("text-anchor", "middle")
+          .text(function(d) { return d.className.substring(0, d.r / 3); });
+
+        node.on("mouseover",function(d,i){
+            drawLine(d.index);
+        });
 
         
     }
@@ -732,7 +776,8 @@
             else classes.push({
                 packageName: name,
                 className: node["Country Name"],
-                value: node[current_year]
+                value: node[current_year],
+                index: node.index
             });
         }
 
