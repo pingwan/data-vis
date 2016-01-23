@@ -37,8 +37,6 @@ colmeans["1960"]
 
 for (i in 1960:2011){
   #testje <- which(is.na(main_countires[,as.character(i)]))
-  is.na(main_countires[,as.character(i)])
-  testje
   #main_countires[testje,as.character(i)] <- colmeans[as.character(i)]
 }
 

@@ -11,10 +11,10 @@
     <link rel="stylesheet" type="text/css" href="/libraries/d3.slider.css" media="screen" />
     <script src="/libraries/d3.min.js" charset="utf-8"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/1.7.0/d3-legend.js" charset="utf-8"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/1.7.0/d3-legend.js" charset="utf-8"></script>
 
     <script src="/libraries/jquery.min.js" charset="utf-8"></script>
+    <script src="/libraries/bootstrap/js/bootstrap.min.js" charset="utf-8"></script>
     <script src="/libraries/d3.slider.js" charset="utf-8"></script>
     <!--[if lt IE 9]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -40,7 +40,7 @@
 
         .trendline {
           fill: none;
-          stroke-width: 1.5px;
+          
         }
 
         .axis path {
@@ -84,43 +84,69 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-xs-9">
-                <div class="row">
-                    <div class="col-xs-12">
-                       
-                            <span>
-                                <label>Dataset 1</label>
-                                <select>
-                                    <option value="emission">Emission</option>
-                                    <option value="population">Population</option>
-                                </select>
-                            </span>
-                            <span class="pull-right">
-                                <label>Dataset 2</label>
-                                <select>
-                                    <option value="emission">Emission</option>
-                                    <option value="population">Population</option>
-                                </select>
-                            </span>
-                       
-                    </div>
-                    <div class="col-xs-12">
-                        <div id="map_container"></div>
-                    </div>
-                    <div class="col-xs-12">
-                        <div id="color_legend"></div>
-                    </div>
-                    <div class="col-xs-12">
-                        <div id="graph_container" transform="translate(100,0)"></div>
+
+        <!-- Nav tabs -->
+      <ul class="nav nav-tabs" role="tablist" style="margin-bottom:20px;">
+        <li role="presentation" class="active"><a href="#map" aria-controls="bubble" role="tab" data-toggle="tab">Map</a></li>
+        <li role="presentation"><a href="#compare" aria-controls="compare" role="tab" data-toggle="tab">Compare</a></li>
+      </ul>
+
+
+      <!-- Tab panes -->
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="map">
+        <!-- ######
+            Dit is de tab voor de bubble visalization 
+        ##### -->
+
+            <div class="row">
+                <div class="col-xs-9">
+                    <div class="row">
+                        <div class="col-xs-12">
+                           
+                                <span>
+                                    <label>Dataset:</label>
+                                    <select id="select_data">
+                                        <option value="emission">Emission</option>
+                                        <option value="population">Population</option>
+                                        <option value="gdp">GDP per capital</option>
+                                        <option value="life">Life expectancy</option>
+                                    </select>
+                                </span>
+                           
+                        </div>
+                        <div class="col-xs-12">
+                            <div id="map_container"></div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div id="color_legend"></div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div id="graph_container" transform="translate(100,0)"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-xs-3">
-                <div id="countries_container"></div>
+                <div class="col-xs-3">
+                    <div id="countries_container"></div>
+                </div>
             </div>
 
+
         </div>
+        <div role="tabpanel" class="tab-pane" id="compare">
+            <!-- ######
+            Dit is de tab voor de bubble visalization 
+            ##### -->
+
+            bubble chart hier!
+
+        </div>
+      </div>
+
+
+
+
+        
 
     
     </div>
@@ -150,7 +176,7 @@
     var x = d3.scale.linear().range([0, chartWidth]);
     x.domain([1960,2011]);
     var y = d3.scale.linear().range([chartHeight, 0]);
-    y.domain([0,10000000]);
+
 
     var div = d3.select("body").append("div")   
                 .attr("class", "tooltip")               
@@ -211,34 +237,58 @@
     xAxis_group.transition().call(xAxis);
     yAxis_group.transition().call(yAxis);
 
-    
-
     function drawGraph(){
+
+        console.log(emission_data)
+
+        var nested = d3.nest()
+                        .key(function(d){
+                            return d['Country Code']
+                        })
+                        
+                        .rollup(function(leaves){
+                            //console.log(emission_data.indexOf(leaves[0]))
+
+
+                            if(leaves[0][current_year] === ""){
+                                return 0;    
+                            }else{
+
+                                
+
+                                max  = 0;
+
+                                for (var j = 1960; j < 2012; j++) {
+                                    
+                                    value = parseInt(leaves[0][[String(j)]]);
+                                    if(value > max) max = value;
+                                };
+
+
+                                obj = {
+                                    "Country Name": leaves[0]["Country Name"],
+                                    "Emission": parseInt(leaves[0][[current_year]]),
+                                    "Index": emission_data.indexOf(leaves[0]),
+                                    "Max" : max
+                                }
+
+                                return obj;
+
+                            }
+                            
+                        })
+                        .map(emission_data);
+
+        y.domain([0,d3.max(d3.values(nested).map(function(d){return d["Max"]}))]);
+
+        yAxis_group.transition().call(yAxis);
+
+        $(".trendline").remove();
+
+
+        drawLine(null);
         
-        for (var i = 0; i < emission_data.length; i++) {
-            var country = emission_data[i];
-            var data = [];
-            for (var j = 1960; j < 2012; j++) {
-                var entry = {};
-                entry.date = j;
-                entry.emission = country[j];
-                data.push(entry);
-            };
-
-            var line = d3.svg.line()
-                .x(function(d){
-                    return x(d.date);
-                })
-                .y(function(d){
-                    return y(d.emission);
-                })
-
-            // Add the valueline path.
-            graph.append("path")
-                .attr("class", "line")
-                .attr("d", line(data))
-                .attr("transform", "translate(100,10)");
-        };
+        
     }
 
     function drawMap(data){
@@ -281,15 +331,7 @@
             emission_data =  emission_data.filter(function(d){
                 return (available_countries.indexOf(d['Country Code']) !== -1);
             })
-            
-            /*interval = setInterval(function(){
-                if(current_year < 1965){
-                    updateMap();
-                    current_year++;
-                    //console.log("sdf");
-                }
-            },200)*/
-
+    
             updateMap();
             createLegend();
             drawGraph();
@@ -356,11 +398,13 @@
                         .style("left", (d3.event.pageX) + "px")     
                         .style("top", (d3.event.pageY - 28) + "px");
 
-                        drawLine(nested[d.id]["Index"]);
+                        drawLine(d.id);
 
                         
             
                     }).on("mouseout",function(d,i){
+
+                        d3.selectAll(".trendline").style("stroke","steelblue").style("stroke-width",2);
                            
                         div.transition()        
                             .duration(500)      
@@ -369,134 +413,7 @@
                     })
                 
     }
-        
-//        /*function plot_points(data){
-//            //draw circle logic
-//            
-//            var nested = d3.nest()
-//                            .key(function(d){
-//                                return d['date'].getUTCFullYear();
-//                            })
-//                            .rollup(function(leaves){
-//                                var total = d3.sum(leaves,function(d){
-//                                    return d['attendace'];
-//                                })   
-//                                
-//                                var coords = leaves.map(function(d){
-//                                    return projection([+d.long,+d.lat]);
-//                                })
-//                                
-//                                var center_x = d3.mean(coords,function(d){
-//                                    return d[0];
-//                                });
-//                                
-//                                var center_y = d3.mean(coords,function(d){
-//                                    return d[1];
-//                                })
-//                                
-//                                var teams = d3.set();
-//                                
-//                                leaves.forEach(function(d){
-//                                    teams.add(d['team1']);
-//                                    teams.add(d['team2']);
-//                                })
-//                                
-//                                //console.log(teams);
-//                                
-//                                return {
-//                                    'attendance' : total,
-//                                    'x' : center_x,
-//                                    'y' : center_y,
-//                                    'teams' : teams.values()
-//                                };
-//                            })
-//                            .entries(data);
-//            
-//            //console.log(nested);
-//            var temp = nested[0];
-//            nested = [];
-//            nested.push(temp);
-//            
-//            //console.log(nested);
-//            
-//            var teams = temp.values.teams;
-//            //console.log(teams);
-//            
-//            //console.log(nested);
-//            
-//                /*var attendance_extend = d3.extent(nested,function(d){
-//                    return d.values['attendance'];
-//                })*
-//                
-//                /*var radius = d3.scale.sqrt()
-//                                .domain(attendance_extend)
-//                                .range([0,12]);*/
-//            
-//                /*svg.append("g")
-//                    .classed("bubble",true)
-//                    .selectAll("circle")
-//                    /*.data(nested.sort(function(a,b){
-//                        return b.values['attendance'] -  a.values['attendance'];
-//                    }),function(d){
-//                        return d['key'];
-//                    })*/
-//                    .data(nested)
-//                    .enter()
-//                    .append("circle")
-//                    .attr("cx",function(d){
-//                        console.log(d);
-//                        return d.values.x;
-//                    })
-//                    .attr("cy",function(d){
-//                        return d.values.y
-//                    })
-//                    .attr("r",function(d){
-//                        return 10;
-//                    })
-//                    .attr("fill","rgb(247,148,32)")
-//                    .attr("stroke",'black')
-//                    .attr("stroke-width",0.7)
-//                    .attr("opacity",0.7);
-//            
-//                console.log(teams);
-//                svg.selectAll("path")
-//                    .style("fill",function(d){
-//                        //console.log(d);
-//                        if(teams.indexOf(d.properties.name) !== -1){
-//                            //console.log("hoi");
-//                            return "red";
-//                        }else{
-//                            //console.log("hoi2");
-//                            return "white";    
-//                        }
-//                        
-//                    });
-//                
-//            
-//        };
-//        
-//        function update(year){
-//            
-//            var filtered = nested.filter(function(d){
-//                return new Date(d['key']).getUTCYear() == year;
-//            });
-//            
-//            //var circle = 
-//            
-//            
-//            
-//        }
-        
-        /*var format = d3.time.format("%d-%m-%Y (%H:%M h)");
-        
-        d3.tsv("world_cup_geo.tsv",function(d){
-            d['attendace'] = +d['attendance'];
-            d['date'] = format.parse(d['date']);
-            return d;
-        }, plot_points);*/
-        
-        
-    
+
     
     
     d3.json("world_countries.json",function(d){
@@ -504,9 +421,6 @@
         available_countries = d.features.map(function(d){
             return d.id;
         });
-        
-        //console.log(available_countries.slice(0,100));
-        //console.log(available_countries.slice(100,200));
         
         drawMap(d);
 
@@ -578,10 +492,16 @@
                     .append('tr')
                     .on("mouseover",function(d,i){
                         highlightCountry(d);
-                        drawLine(i);
+
+                        drawLine(d.key);
                     })
                     .on("mouseout",function(d,i){
                         updateMap();
+
+                        d3.selectAll(".trendline").style("stroke","steelblue").style("stroke-width",2);
+                
+
+
                     }).style("cursor","pointer");
 
        var td = tr.selectAll('td')
@@ -625,7 +545,77 @@
     }
 
     function drawLine(index){
-        var data = [];
+
+
+        for (var i = 0; i < emission_data.length; i++) {
+            var country = emission_data[i];
+            var data = [];
+            for (var j = 1960; j < 2012; j++) {
+                var entry = {};
+                entry.date = j;
+                entry.emission = country[j];
+                entry["Country Code"] = country["Country Code"];
+                data.push(entry);
+            };
+
+            var line = d3.svg.line()
+                .x(function(d){
+                    return x(d.date);
+                })
+                .y(function(d){
+                    return y(d.emission);
+                })
+
+                var name = ".trendline_" + country["Country Code"];
+
+                var trendLine = graph.selectAll(name).data([data]);
+
+                //enter
+                trendLine.enter().append("path").classed(name,true).classed("trendline",true).attr("transform", "translate(100,10)");
+
+                //update
+                trendLine.transition().duration(200).ease("linear")
+                .attr("d",function(d){
+                    return line(d);
+                }).style("stroke-width", function(d){
+                    if(d[0]["Country Code"] == index){
+                            return 5;
+                        }else{
+                            return 2;
+                        }
+                });
+
+                    trendLine.style("stroke",function(d){
+                        if(d[0]["Country Code"] == index){
+                            return "red";
+                        }else{
+                            return "steelblue";
+                        }
+                    }).style("opacity",function(d){
+
+                        if(index == null)
+                            return 1.0;
+
+                        if(d[0]["Country Code"] == index){
+                            console.log("yes");
+                            return 1.0;
+                        }else{
+                            return 0.1;
+                        }
+                    })
+                
+
+                //exit
+                trendLine.exit().remove();
+
+
+        };
+
+
+
+
+
+        /*var data = [];
         for (var i = 1960; i < 2012; i++) {
             var entry = {};
             entry.date = i;
@@ -647,7 +637,7 @@
         trendLine.enter().append("path").classed("trendline",true).attr("transform", "translate(100,10)");
 
         //update
-        trendLine.transition().duration(1000).ease("linear")
+        trendLine.transition().duration(200).ease("linear")
         .attr("d",function(d){
             return line(d);
         }).style("stroke",function(d){
@@ -655,9 +645,45 @@
         });
         
         //exit
-        trendLine.exit().remove();
+        trendLine.exit().remove();*/
     }
 
+
+    d3.select("#select_data").on("change",function(d){
+
+        var file_name;
+        switch (this.value) {
+            case "population":
+                file_name = "population_data.csv"
+                break
+            case "emission":
+                file_name = "emission_data.csv"
+                break;
+            case "gdp":
+                file_name = "gdp_per_capital.csv"
+                break;
+            case "life":
+                file_name = "life_expectancy.csv"
+                break;
+                
+        }
+        
+        d3.csv(file_name,function(d){
+          
+            
+            emission_data = d;
+            
+            emission_data =  emission_data.filter(function(d){
+                return (available_countries.indexOf(d['Country Code']) !== -1);
+            })
+            
+            
+            updateMap();
+            createLegend();
+            drawGraph();
+            
+        })
+    })
 
 
 
