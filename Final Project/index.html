@@ -88,8 +88,8 @@
         <!-- Nav tabs -->
       <ul class="nav nav-tabs" role="tablist" style="margin-bottom:20px;">
         <li role="presentation" class="active"><a href="#map" aria-controls="bubble" role="tab" data-toggle="tab">Map</a></li>
-        <li role="presentation"><a href="#compare" aria-controls="compare" role="tab" data-toggle="tab">Bubbles</a></li>
-        <li role="presentation"><a href="#scat" aria-controls="scat" role="tab" data-toggle="tab">Scatter</a></li>
+        <li role="presentation"><a href="#compare" aria-controls="compare" role="tab" data-toggle="tab">Bubble Chart</a></li>
+        <li role="presentation"><a href="#scat" aria-controls="scat" role="tab" data-toggle="tab">Scatterplot</a></li>
       </ul>
 
 
@@ -197,7 +197,7 @@
     var margin = {
         top: 40, 
         right: 50, 
-        bottom: 50, 
+        bottom: 0, 
         left: 50};
 
     var chartWidth = width - margin.left - margin.right;
@@ -649,6 +649,7 @@
         var svg_legend = d3.select("#color_legend")
                             .append("svg")
                             .attr("width",700)
+                            .attr("height",100)
                             .style("display","block")
                             .style("margin","auto");
 
@@ -1096,7 +1097,7 @@ function changebubble() {
                 if(d.country == ccode){
                     var sel = d3.select(this);
                     sel.moveToFront();
-                    sel.attr("r", 10).style("fill", "red");
+                    sel.attr("r", 10);
                     return "red";
                 }
                 else{
