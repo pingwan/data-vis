@@ -265,7 +265,7 @@
 
     var yAxis = d3.svg.axis()
         .scale(y)
-        .tickFormat(d3.format("d"))
+        .tickFormat(d3.format("s"))
         .orient("left");
 
     //update axis
@@ -331,12 +331,12 @@
 
     var xAxis_scat = d3.svg.axis()
         .scale(x_scat)
-        .tickFormat(d3.format("d"))
+        .tickFormat(d3.format("s"))
         .orient("bottom");
 
     var yAxis_scat = d3.svg.axis()
         .scale(y_scat)
-        .tickFormat(d3.format("d"))
+        .tickFormat(d3.format("s"))
         .orient("left");
 
     //update axis
@@ -1052,6 +1052,8 @@ function changebubble() {
                 name:cname
             });
         };    
+
+
 
         // setup x 
         var xValue = function(d) { return parseInt(d.x);}, // data -> value
