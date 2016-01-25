@@ -55,6 +55,10 @@
             fill: none;
         }
 
+        .node{
+            fill:white;
+        }
+
         div.tooltip {   
           position: absolute;           
           text-align: center;                           
@@ -93,91 +97,80 @@
       </ul>
 
 
-      
-
-            <div class="row">
-                <div class="col-xs-9">
-                    <div class="row">
-                        <div class="col-xs-12">
-                           
-                                <span>
-                                    <label>Dataset:</label>
-                                    <select id="select_data">
-                                        <option value="emission">Emission</option>
-                                        <option value="population">Population</option>
-                                        <option value="gdp">GDP per capital</option>
-                                        <option value="life">Life expectancy</option>
-                                    </select>
-                                </span>
-                           
-                        </div>
-                        <!-- Tab panes -->
-                          <div class="tab-content">
-                            <div role="tabpanel" class="tab-pane active" id="map">
-                            <!-- ######
-                                Dit is de tab voor de bubble visalization 
-                            ##### -->
-                            <div class="col-xs-12">
-                                <div id="map_container"></div>
-                            </div>
-                            <div class="col-xs-12">
-                                <div id="color_legend"></div>
-                            </div>
-
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="compare">
-                            <!-- ######
+        <div class="row">
+            <div class="col-xs-9">
+                <div class="row">
+                    <div class="col-xs-12">
+                       
+                            <span>
+                                <label>Dataset:</label>
+                                <select id="select_data">
+                                    <option value="emission">Emission</option>
+                                    <option value="population">Population</option>
+                                    <option value="gdp">GDP per capital</option>
+                                    <option value="life">Life expectancy</option>
+                                </select>
+                            </span>
+                       
+                    </div>
+                    <!-- Tab panes -->
+                      <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="map">
+                        <!-- ######
                             Dit is de tab voor de bubble visalization 
-                            ##### -->
-
-                            <div class="col-xs-12">
-                                <div id="bubble_container"></div>
-                            </div>
-
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="scat">
-                            <!-- ######
-                            Dit is de tab voor de bubble visalization 
-                            ##### -->
-                            <div class="col-xs-12">
-                           
-                                <span>
-                                    <label>Dataset:</label>
-                                    <select id="select_data2">
-                                        <option value="population">Population</option>
-                                        <option value="gdp">GDP per capital</option>
-                                        <option value="life">Life expectancy</option>
-                                        <option value="emission">Emission</option>
-                                    </select>
-                                </span>
-                           
-                            </div>
-
-                            <div class="col-xs-12">
-                                <div id="scatter_container"></div>
-                            </div>
-
-                        </div>
-                      </div>
+                        ##### -->
                         <div class="col-xs-12">
-                            <div id="graph_container" transform="translate(100,0)"></div>
+                            <div id="map_container"></div>
                         </div>
+                        <div class="col-xs-12">
+                            <div id="color_legend"></div>
+                        </div>
+
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="compare">
+                        <!-- ######
+                        Dit is de tab voor de bubble visalization 
+                        ##### -->
+
+                        <div class="col-xs-12">
+                            <div id="bubble_container"></div>
+                        </div>
+
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="scat">
+                        <!-- ######
+                        Dit is de tab voor de bubble visalization 
+                        ##### -->
+                        <div class="col-xs-12">
+                       
+                            <span>
+                                <label>Dataset:</label>
+                                <select id="select_data2">
+                                    <option value="population">Population</option>
+                                    <option value="gdp">GDP per capital</option>
+                                    <option value="life">Life expectancy</option>
+                                    <option value="emission">Emission</option>
+                                </select>
+                            </span>
+                       
+                        </div>
+
+                        <div class="col-xs-12">
+                            <div id="scatter_container"></div>
+                        </div>
+
+                    </div>
+                  </div>
+                    <div class="col-xs-12">
+                        <div id="graph_container" transform="translate(100,0)"></div>
                     </div>
                 </div>
-                <div class="col-xs-3">
-                    <div id="countries_container"></div>
-                </div>
             </div>
+            <div class="col-xs-3">
+                <div id="countries_container"></div>
+            </div>
+        </div>
 
-
-        
-
-
-
-
-        
-
-    
     </div>
 
 <script>
@@ -216,7 +209,6 @@
 
     slider.on("slide", function(){
         current_year = slider.value();
-        //d3.select("#year").html("<h2>" + current_year +"</h2>");
         updateMap();
         createLegend();
         changebubble();
@@ -403,7 +395,6 @@
         //draw the svg for map
         svg = d3.select("#map_container")
                     .append("svg")
-                    //.style("background-color","blue")
                     .attr("width",width)
                     .attr("height",height)
                     .append("g")
@@ -423,15 +414,11 @@
                     .enter()
                     .append("path")
                     .attr("d",path)
-                    //.style("fill",'rgb(9,157,217)')
                     .style("stroke",'black')
                     .style("stroke-width",0.5);
         
         
-        d3.csv("emission_data.csv",function(d){
-          
-            //console.log(d);
-            
+        d3.csv("data/emission_data.csv",function(d){
             
             emission_data = d;
             
@@ -444,7 +431,7 @@
             drawGraph();
             drawBubbles();
 
-            d3.csv("population_data.csv",function(d){
+            d3.csv("data/population_data.csv",function(d){
 
                 compare_data = d;
                 
@@ -473,8 +460,6 @@
                         })
                         
                         .rollup(function(leaves){
-                            //console.log(emission_data.indexOf(leaves[0]))
-
 
                             if(leaves[0][current_year] === ""){
                                 return 0;    
@@ -533,10 +518,8 @@
                     })
                 
     }
-
     
-    
-    d3.json("world_countries.json",function(d){
+    d3.json("data/world_countries.json",function(d){
         
         available_countries = d.features.map(function(d){
             return d.id;
@@ -730,45 +713,8 @@
 
                 //exit
                 trendLine.exit().remove();
-
-
         };
 
-
-
-
-
-        /*var data = [];
-        for (var i = 1960; i < 2012; i++) {
-            var entry = {};
-            entry.date = i;
-            entry.emission = parseFloat(emission_data[index][i]);
-            data.push(entry);
-        };
-
-        var line = d3.svg.line()
-            .x(function(d){
-                return x(d.date);
-            })
-            .y(function(d){
-                return y(d.emission);
-            })
-
-        var trendLine = graph.selectAll(".trendline").data([data]);
-
-        //enter
-        trendLine.enter().append("path").classed("trendline",true).attr("transform", "translate(100,10)");
-
-        //update
-        trendLine.transition().duration(200).ease("linear")
-        .attr("d",function(d){
-            return line(d);
-        }).style("stroke",function(d){
-            return "red";
-        });
-        
-        //exit
-        trendLine.exit().remove();*/
     }
 
 
@@ -781,22 +727,22 @@
             case "population":
                 yAxisLabel.text("Population");
                 xAxisLabel_scat.text("Population");
-                file_name = "population_data.csv"
+                file_name = "data/population_data.csv"
                 break
             case "emission":
                 yAxisLabel.text("Emission");
                 xAxisLabel_scat.text("Emission");
-                file_name = "emission_data.csv"
+                file_name = "data/emission_data.csv"
                 break;
             case "gdp":
                 yAxisLabel.text("GDP");
                 xAxisLabel_scat.text("GDP");
-                file_name = "gdp_per_capital.csv"
+                file_name = "data/gdp_per_capital.csv"
                 break;
             case "life":
                 yAxisLabel.text("Life Expectancy");
                 xAxisLabel_scat.text("Life Expectancy");
-                file_name = "life_expectancy.csv"
+                file_name = "data/life_expectancy.csv"
                 break;
                 
         }
@@ -809,7 +755,6 @@
             emission_data =  emission_data.filter(function(d){
                 return (available_countries.indexOf(d['Country Code']) !== -1);
             })
-            
             
             updateMap();
             createLegend();
@@ -826,19 +771,19 @@
         switch (this.value) {
             case "population":
                 yAxisLabel_scat.text("Population");
-                file_name = "population_data.csv"
+                file_name = "data/population_data.csv"
                 break
             case "emission":
                 yAxisLabel_scat.text("Emission");
-                file_name = "emission_data.csv"
+                file_name = "data/emission_data.csv"
                 break;
             case "gdp":
                 yAxisLabel_scat.text("GDP");
-                file_name = "gdp_per_capital.csv"
+                file_name = "data/gdp_per_capital.csv"
                 break;
             case "life":
                 yAxisLabel_scat.text("Life Expectancy");
-                file_name = "life_expectancy.csv"
+                file_name = "data/life_expectancy.csv"
                 break;
                 
         }
@@ -898,7 +843,7 @@
             .attr("r", function (d) {
             return d.r;
         })
-            .style("fill", "blue");
+            .style("fill", "steelblue");
 
         node.append("text")
           .attr("dy", ".3em")
@@ -979,7 +924,7 @@ function changebubble() {
     nodeEnter
         .append("circle")
         .attr("r", function (d) {return d.r;})
-        .style("fill", "blue")
+        .style("fill", "steelblue")
     
     // re-use enter selection for titles
     nodeEnter
@@ -993,7 +938,7 @@ function changebubble() {
         .attr("r", function (d) {
             return d.r;
         })
-        .style("fill", "blue");
+        .style("fill", "steelblue");
 
     node.select("title")
         .text(function (d) {
@@ -1031,7 +976,7 @@ function changebubble() {
                     return "red";
                 }
                 else{
-                    return "blue";
+                    return "steelblue";
                 }
             });
     }
@@ -1075,13 +1020,13 @@ function changebubble() {
             .attr("cx", xMap)
             .attr("cy", yMap)
             .attr("transform", "translate(100," + 10 + ")")
-            .style("fill", "blue")
+            .style("fill", "steelblue")
             .on("mouseover", function(d) {
               d3.select(this).attr("r", 10).style("fill", "red");
               drawLine(d.country);
             })                  
             .on("mouseout", function(d) {
-              d3.select(this).attr("r", 3.5).style("fill", "blue");
+              d3.select(this).attr("r", 3.5).style("fill", "steelblue");
                 d3.selectAll(".trendline").style("stroke","steelblue").style("stroke-width",2);
             })
             .append("title").text(function(d){
@@ -1103,8 +1048,8 @@ function changebubble() {
                     return "red";
                 }
                 else{
-                    d3.select(this).attr("r", 3.5).style("fill", "blue");
-                    return "blue";
+                    d3.select(this).attr("r", 3.5).style("fill", "steelblue");
+                    return "steelblue";
                 }
             });
     }
@@ -1114,10 +1059,6 @@ function changebubble() {
         this.parentNode.appendChild(this);
       });
     };
-
-    
-    
-    
 
     
 </script>
